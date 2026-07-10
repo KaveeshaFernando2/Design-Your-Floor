@@ -534,11 +534,11 @@ London Metropolitan University
 
 Software Engineering Graduate
 
-📧 Email: your-email@example.com
+📧 Email: kaveeshanethmini807@gmail.com
 
-🔗 LinkedIn: https://linkedin.com/in/your-profile
+🔗 LinkedIn: (https://www.linkedin.com/in/kaveesha-nethmini-381547329/)
 
-🌐 Portfolio: https://your-portfolio.com
+🌐 Portfolio: https://kaveeshafernando2.github.io/
 
 ---
 
