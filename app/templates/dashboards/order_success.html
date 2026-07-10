@@ -1,0 +1,278 @@
+{% extends 'customer_layout_navbar.html' %}
+{% block content %}
+
+<style>
+
+/* ===== Background with Blur ===== */
+.success-bg {
+    position: relative;
+    padding: 40px 0;
+    overflow: hidden;
+}
+
+/* Blurred Background Layer */
+.success-bg::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://img.freepik.com/premium-photo/interior-background-stylish-render-green-pillow-lamp-cushion-sofa-room-loft-generative-ai_163305-172871.jpg?semt=ais_hybrid&w=740&q=80')
+                no-repeat center center fixed;
+    background-size: cover;
+    filter: blur(2px);          /* ADJUST BLUR */
+    transform: scale(1.1);      /* prevents edge clipping */
+    z-index: -1;
+    opacity: 0.95;              /* optional smooth effect */
+}
+
+/* ===== Progress Steps ===== */
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin: 40px 0 50px 0;
+    position: relative;
+}
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 10%;
+    right: 10%;
+    height: 3px;
+    background: #e0e0e0;
+    z-index: 1;
+}
+.step {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    transition: .3s;
+}
+.step-number {
+    width: 45px;
+    height: 45px;
+    background: #2c3e50;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    font-weight: bold;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #2c3e50;
+}
+.step-text {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+.step.active .step-number {
+    background: #28a745;
+    box-shadow: 0 0 0 3px #28a745;
+}
+.step.active .step-text {
+    color: #28a745;
+    font-weight: 700;
+}
+.step-icon {
+    width: 42px;
+    margin-bottom: 6px;
+    display: block;
+}
+
+/* ===== Success Card ===== */
+.success-box {
+    background: #ffffff;
+    padding: 45px;
+    border-radius: 20px;
+    max-width: 600px;
+    margin: auto;
+    box-shadow: 0px 20px 50px rgba(0,0,0,0.12);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    animation: floatBox 3s ease-in-out infinite;
+}
+@keyframes floatBox {
+    0% {transform: translateY(0);}
+    50% {transform: translateY(-6px);}
+    100% {transform: translateY(0);}
+}
+
+/* ===== Confetti ===== */
+#confetti-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 5; /* make sure it’s above the background but below text/buttons */
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background-color: #f8c90e; /* yellow by default */
+    opacity: 0.9;
+    border-radius: 50%;
+    animation: fall 3s linear infinite;
+}
+
+@keyframes fall {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(600px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+
+/* Cartoon Character */
+.character {
+    width: 250px;
+    margin-bottom: -10px;
+}
+
+/* Buttons */
+.success-btn {
+    display: inline-block;
+    padding: 14px 35px;
+    border-radius: 50px;
+    margin: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    color: white;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    box-shadow: 0 10px 25px rgba(221, 36, 118, 0.4);
+    transition: .3s;
+}
+.success-btn:hover {
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 14px 32px rgba(221, 36, 118, 0.55);
+}
+
+/* Order ID text */
+.order-id {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #28a745;
+}
+
+/* ===== DELIVERY SECTION ===== */
+.delivery-info {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 15px;
+    background: #2c3e50;
+    color: white;
+    text-align: left;
+}
+.delivery-info h4 {
+    font-weight: bold;
+}
+.delivery-time {
+    font-size: 1.4rem;
+    color: #ffca28;
+    font-weight: 800;
+}
+
+</style>
+
+<div class="success-bg">
+
+    <!-- ===== PROGRESS STEPS ===== -->
+    <div class="container">
+        <div class="progress-steps">
+            <div class="step">
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" class="step-icon">
+                <div class="step-number">1</div>
+                <div class="step-text">Cart</div>
+            </div>
+
+            <div class="step">
+                <img src="https://cdn-icons-png.flaticon.com/512/456/456212.png" class="step-icon">
+                <div class="step-number">2</div>
+                <div class="step-text">Details</div>
+            </div>
+
+            <div class="step">
+                <img src="https://cdn-icons-png.flaticon.com/512/891/891407.png" class="step-icon">
+                <div class="step-number">3</div>
+                <div class="step-text">Payment</div>
+            </div>
+
+            <div class="step active">
+                <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" class="step-icon">
+                <div class="step-number">4</div>
+                <div class="step-text">Complete</div>
+            </div>
+        </div>
+
+        <!-- ===== SUCCESS CARD ===== -->
+        <div class="success-box mt-4">
+            
+            <!-- Confetti Container -->
+<div id="confetti-container"></div>
+            <!-- Cartoon Character -->
+            <img src="{{ url_for('static', filename='images/Tick Gif Transparent 46.gif') }}" class="character">
+
+            <h1 class="text-success fw-bold">🎉 Order Successful!</h1>
+
+            <p class="order-id">Order ID: <strong>{{ order.id }}</strong><br></p>
+
+            <p class="text-secondary mt-2">
+                Thank you for your purchase!  
+                Your order is now being prepared.
+            </p>
+
+            <!-- ===== BUTTONS ===== -->
+            <a href="{{ url_for('customer.products') }}" class="success-btn">Continue Shopping</a>
+            <a href="{{ url_for('customer.orders') }}" class="success-btn">View My Orders</a>
+
+            <!-- ===== DELIVERY INFO ===== -->
+            <div class="delivery-info mt-4">
+                <h4>📦 Delivery Information</h4>
+                <p>Your tiles will be delivered within:</p>
+                <div class="delivery-time">3 - 5 Business Days</div>
+
+                <p class="mt-2">Delivery Address:</p>
+                <p><b>{{ order.delivery_address }}</b></p>
+
+                <p>You will receive email updates with tracking information.</p>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('confetti-container');
+    const colors = ['#f8c90e', '#28a745', '#ff3f3f', '#3498db', '#9b59b6'];
+    const confettiCount = 50;
+
+    for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti-piece');
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * 100 + '%';
+        confetti.style.animationDuration = (2 + Math.random() * 2) + 's';
+        confetti.style.width = confetti.style.height = (5 + Math.random() * 8) + 'px';
+        confetti.style.opacity = Math.random();
+        container.appendChild(confetti);
+    }
+});
+</script>
+
+{% endblock %}

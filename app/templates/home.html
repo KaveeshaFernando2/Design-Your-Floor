@@ -1,0 +1,780 @@
+{% extends 'layout_navbar.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Your Floor - Premium Tiles & Equipment</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2c3e50;
+            --secondary: #e74c3c;
+            --accent: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --gray: #7f8c8d;
+        }
+
+        body {
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-left: 10px;
+            color: white;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: var(--secondary);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 25px;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            font-size: 1rem;
+        }
+
+        nav ul li a:hover {
+            color: var(--secondary);
+        }
+
+        .cta-button {
+            background-color: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            display: inline-block;
+        }
+
+        .cta-button:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hero Section with Video Background */
+        .hero {
+            position: relative;
+            height: 90vh;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .hero-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4));
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 700px;
+            color: white;
+            padding: 0 20px;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content h2 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            font-weight: 700;
+        }
+
+        .hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 80px 0;
+            background-color: white;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .section-title p {
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .service-icon {
+            background-color: var(--primary);
+            color: white;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .service-content {
+            padding: 25px;
+        }
+
+        .service-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        /* Calculator Section */
+        .calculator {
+            padding: 80px 0;
+            background-color: var(--light);
+        }
+
+        .calculator-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .calculator-form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .calculator-result {
+            background-color: var(--primary);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .calculator-result h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 20px 0;
+            color: var(--secondary);
+        }
+
+        /* Products Section */
+        .products {
+            padding: 80px 0;
+            background-color: white;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            background: white;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            height: 220px;
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--secondary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .product-content {
+            padding: 25px;
+        }
+
+        .product-content h3 {
+            font-size: 1.4rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .product-content p {
+            color: var(--gray);
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+
+        .product-price {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .product-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .feature-tag {
+            background-color: var(--light);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary);
+            color: white;
+            padding: 60px 0 20px;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .footer-column h3 {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-column ul li a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column ul li a:hover {
+            color: var(--secondary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            nav ul {
+                margin-top: 20px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            nav ul li {
+                margin: 5px 10px;
+            }
+
+            .hero-content h2 {
+                font-size: 2.5rem;
+            }
+
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+
+            .calculator-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-image {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chatbot Button -->
+<div id="chatbot-button">💬</div>
+
+<!-- Chatbot Window -->
+<div id="chatbot-window">
+    <div id="chatbot-header">Chat Assistant</div>
+
+    <div id="chatbot-messages"></div>
+
+    <div id="chatbot-input-area">
+        <input type="text" id="chatbot-input" placeholder="Ask something...">
+        <button id="chatbot-send">Send</button>
+    </div>
+</div>
+
+<link rel="stylesheet" href="/static/css/chatbot.css">
+<script src="/static/js/chatbot.js"></script>
+
+    <!-- Header -->
+    
+
+    <!-- Hero Section with Video Background -->
+    <section class="hero">
+        <video class="hero-video" autoplay muted loop playsinline>
+            <source src="{{ url_for('static', filename='images/7578546-uhd_3840_2160_30fps.mp4') }}" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="video-overlay"></div>
+        <div class="container hero-content">
+            <h2>Transform Your Space With<br><span style="color: var(--secondary);">Premium Tiles</span></h2>
+            <p>We provide high-quality tiles, equipment, professional installation, and delivery services for residential and commercial projects.</p>
+            <a href="#" class="cta-button">Explore Our Collection</a>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services">
+        <div class="container">
+            <div class="section-title">
+                <h2>Our Services</h2>
+                <p>We offer comprehensive tile solutions for all your needs</p>
+            </div>
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Tile Sales</h3>
+                        <p>Wide variety of premium tiles for floors, walls, and outdoor spaces. Ceramic, porcelain, mosaic, and more.</p>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Equipment Sales</h3>
+                        <p>Professional tile installation tools and equipment. Cutters, trowels, adhesives, and grout materials.</p>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-truck"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Delivery Service</h3>
+                        <p>Fast and reliable delivery to your location. We handle all logistics with care and precision.</p>
+                    </div>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">
+                        <i class="fas fa-user-hard-hat"></i>
+                    </div>
+                    <div class="service-content">
+                        <h3>Tile Mason Services</h3>
+                        <p>Professional installation by experienced tile masons. Perfect results guaranteed for your projects.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Calculator Section -->
+    <section class="calculator">
+        <div class="container">
+            <div class="section-title">
+                <h2>Tile Calculator</h2>
+                <p>Calculate exactly how many tiles you need for your project</p>
+            </div>
+            <div class="calculator-container">
+                <div class="calculator-form">
+                    <div class="form-group">
+                        <label for="room-length">Room Length (feet)</label>
+                        <input type="number" id="room-length" placeholder="Enter length" value="12">
+                    </div>
+                    <div class="form-group">
+                        <label for="room-width">Room Width (feet)</label>
+                        <input type="number" id="room-width" placeholder="Enter width" value="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="tile-size">Tile Size</label>
+                        <select id="tile-size">
+                            <option value="12">12" x 12"</option>
+                            <option value="18">18" x 18"</option>
+                            <option value="24">24" x 24"</option>
+                            <option value="6">6" x 6"</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="waste-factor">Waste Factor</label>
+                        <select id="waste-factor">
+                            <option value="1.1">10% (Standard)</option>
+                            <option value="1.15">15% (Complex pattern)</option>
+                            <option value="1.2">20% (Intricate design)</option>
+                        </select>
+                    </div>
+                    <button class="cta-button" style="width: 100%;" onclick="calculateTiles()">Calculate</button>
+                </div>
+                <div class="calculator-result">
+                    <h3>You Will Need</h3>
+                    <div class="result-value" id="tile-result">120</div>
+                    <p>Tiles for your project</p>
+                    <p style="margin-top: 20px; font-size: 0.9rem;">* This is an estimate. Contact us for precise measurement.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Products Section -->
+    <section class="products">
+        <div class="container">
+            <div class="section-title">
+                <h2>Featured Products</h2>
+                <p>Explore our premium tile collection</p>
+            </div>
+            <div class="products-grid">
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://image.made-in-china.com/2f0j00klsoFqOKSacD/Marble-Porcelain-Floor-Tiles-60X60-for-Living-Room.webp" alt="Porcelain Floor Tiles">
+                        <div class="product-badge">Popular</div>
+                    </div>
+                    <div class="product-content">
+                        <h3>Porcelain Floor Tiles</h3>
+                        <p>Durable and stylish porcelain tiles perfect for high-traffic areas. Water-resistant and easy to maintain.</p>
+                        <div class="product-features">
+                            <span class="feature-tag">Water Resistant</span>
+                            <span class="feature-tag">High Durability</span>
+                            <span class="feature-tag">Easy Clean</span>
+                        </div>
+                        <div class="product-price">MRP 1535.92/sq.ft</div>
+                        <a href="#" class="cta-button">View Details</a>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://adilaceramic.com/uploads/pages/ceramic%20wall%20tiles.webp" alt="Ceramic Wall Tiles">
+                        <div class="product-badge">Best Seller</div>
+                    </div>
+                    <div class="product-content">
+                        <h3>Ceramic Wall Tiles</h3>
+                        <p>Beautiful ceramic tiles for kitchen and bathroom walls. Available in various colors and patterns.</p>
+                        <div class="product-features">
+                            <span class="feature-tag">Multiple Colors</span>
+                            <span class="feature-tag">Easy Installation</span>
+                            <span class="feature-tag">Budget Friendly</span>
+                        </div>
+                        <div class="product-price">MRP 1074.22/sq.ft</div>
+                        <a href="#" class="cta-button">View Details</a>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://www.hyperiontiles.co.uk/cdn/shop/files/eden-glass-mosaic-8850349.jpg?v=1761154894&width=1600" alt="Mosaic Tiles">
+                    </div>
+                    <div class="product-content">
+                        <h3>Mosaic Tiles</h3>
+                        <p>Intricate mosaic patterns for accent walls and decorative areas. Create stunning visual effects.</p>
+                        <div class="product-features">
+                            <span class="feature-tag">Artistic Design</span>
+                            <span class="feature-tag">Custom Patterns</span>
+                            <span class="feature-tag">Premium Quality</span>
+                        </div>
+                        <div class="product-price">MRP 2459.33/sq.ft</div>
+                        <a href="#" class="cta-button">View Details</a>
+                    </div>
+                </div>
+                <div class="product-card">
+                    <div class="product-image">
+                        <img src="https://www.marblesystems.com/wp-content/uploads/2024/08/natural-stone-floor-tiles-min-800x800.jpg" alt="Natural Stone Tiles">
+                        <div class="product-badge">Luxury</div>
+                    </div>
+                    <div class="product-content">
+                        <h3>Natural Stone Tiles</h3>
+                        <p>Elegant marble, granite, and slate tiles for luxury spaces. Each piece is unique with natural patterns.</p>
+                        <div class="product-features">
+                            <span class="feature-tag">Natural Patterns</span>
+                            <span class="feature-tag">Premium Finish</span>
+                            <span class="feature-tag">Long Lasting</span>
+                        </div>
+                        <div class="product-price">MRP 3998.33/sq.ft</div>
+                        <a href="#" class="cta-button">View Details</a>
+                    </div>
+                </div>
+                <!-- ⭐ Tile Adhesive Card -->
+<div class="product-card">
+    <div class="product-image">
+        <img src="https://lmd.lk/wp-content/uploads/2025/08/TILE-Adhisive-Pack-Range.jpg" alt="Tile Adhesive">
+        <div class="product-badge">Best Seller</div>
+    </div>
+    <div class="product-content">
+        <h3>Tile Adhesive</h3>
+        <p>High-strength adhesive for wall and floor tiles. Ensures firm bonding and long-term durability.</p>
+        <div class="product-features">
+            <span class="feature-tag">Strong Bond</span>
+            <span class="feature-tag">Quick Set</span>
+            <span class="feature-tag">Moisture Resistant</span>
+        </div>
+        <div class="product-price">MRP 2613.23/bag</div>
+        <a href="#" class="cta-button">View Details</a>
+    </div>
+</div>
+
+<!-- ⭐ Tile Grout Card -->
+<div class="product-card">
+    <div class="product-image">
+        <img src="https://roofing.lk/wp-content/uploads/2023/06/tile-grout-product-jpg.webp" alt="Tile Grout">
+        <div class="product-badge">Premium</div>
+    </div>
+    <div class="product-content">
+        <h3>Tile Grout</h3>
+        <p>Waterproof, anti-crack grout available in multiple colors for a professional tile finish.</p>
+        <div class="product-features">
+            <span class="feature-tag">Waterproof</span>
+            <span class="feature-tag">Anti-Crack</span>
+            <span class="feature-tag">Color Options</span>
+        </div>
+        <div class="product-price">MRP 1843.72/pack</div>
+        <a href="#" class="cta-button">View Details</a>
+    </div>
+</div>
+            
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-column">
+                    <h3>Design Your Floor</h3>
+                    <p>Your trusted partner for premium tile solutions. Quality products and professional services for over 15 years.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="#">Home</a></li>
+                        <li><a href="#">Products</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Gallery</a></li>
+                        <li><a href="#">About Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Services</h3>
+                    <ul>
+                        <li><a href="#">Tile Sales</a></li>
+                        <li><a href="#">Equipment Sales</a></li>
+                        <li><a href="#">Delivery Service</a></li>
+                        <li><a href="#">Tile Mason Services</a></li>
+                        <li><a href="#">Consultation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Tile Street, City</li>
+                        <li><i class="fas fa-phone"></i> (123) 456-7890</li>
+                        <li><i class="fas fa-envelope"></i> info@designyourfloor.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Design Your Floor. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function calculateTiles() {
+            const length = parseFloat(document.getElementById('room-length').value) || 0;
+            const width = parseFloat(document.getElementById('room-width').value) || 0;
+            const tileSize = parseFloat(document.getElementById('tile-size').value) || 12;
+            const wasteFactor = parseFloat(document.getElementById('waste-factor').value) || 1.1;
+            
+            // Calculate area in square feet
+            const areaSqFt = length * width;
+            
+            // Convert to square inches
+            const areaSqIn = areaSqFt * 144;
+            
+            // Calculate tile area
+            const tileArea = tileSize * tileSize;
+            
+            // Calculate number of tiles needed
+            let tilesNeeded = areaSqIn / tileArea;
+            
+            // Apply waste factor
+            tilesNeeded *= wasteFactor;
+            
+            // Round up to nearest whole tile
+            tilesNeeded = Math.ceil(tilesNeeded);
+            
+            // Display result
+            document.getElementById('tile-result').textContent = tilesNeeded;
+        }
+        
+        // Initialize calculator with default values
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTiles();
+        });
+    </script>
+</body>
+</html>
+{% endblock %}

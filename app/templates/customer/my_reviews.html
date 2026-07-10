@@ -1,0 +1,149 @@
+{% extends "customer_layout_navbar.html" %}
+
+{% block content %}
+
+<style>
+    .reviews-header {
+        font-weight: 800;
+        font-size: 32px;
+        color: #1f2937;
+        margin-bottom: 30px;
+        letter-spacing: -0.5px;
+    }
+
+    .review-card {
+        border-radius: 16px;
+        padding: 28px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        transition: all 0.25s ease;
+    }
+
+    .review-card:hover {
+        box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+        transform: translateY(-3px);
+    }
+
+    .rating-stars {
+        font-size: 24px;
+        font-weight: 700;
+        color: #fbbf24; /* gold */
+        margin-bottom: 10px;
+    }
+
+    .installer-info {
+        font-size: 15px;
+        color: #374151;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .review-date {
+        font-size: 13px;
+        color: #6b7280;
+    }
+
+    .review-text {
+        font-size: 15px;
+        color: #111827;
+        margin: 14px 0;
+        line-height: 1.55;
+    }
+
+    .action-buttons .btn {
+        padding: 8px 18px;
+        font-size: 14px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    /* Blue Edit Button */
+    .btn-edit {
+        background: #2563eb;
+        color: white;
+        border: none;
+    }
+    .btn-edit:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    /* Red Delete Button */
+    .btn-delete {
+        background: #dc2626;
+        color: white;
+        border: none;
+    }
+    .btn-delete:hover {
+        background: #b91c1c;
+        color: white;
+    }
+
+    .pagination-custom a {
+        padding: 8px 20px;
+        border-radius: 8px;
+        margin-right: 8px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="container mt-4">
+    
+    <h2 class="reviews-header">⭐ My Reviews</h2>
+
+    {% if reviews %}
+        {% for item in reviews %}
+        <div class="review-card shadow-sm mb-4">
+
+            <!-- Rating -->
+            <div class="rating-stars">⭐ {{ item.review.rating }}/5</div>
+
+            <!-- Comment -->
+            <div class="review-text">{{ item.review.comment }}</div>
+
+            <!-- Date -->
+            <div class="review-date">
+                Reviewed on: {{ item.review.created_at.strftime("%Y-%m-%d") }}
+            </div>
+
+            <!-- Installer Info -->
+            {% if item.installer %}
+                <div class="installer-info">
+                    👷 Installer: {{ item.installer.user.full_name }}
+                </div>
+            {% endif %}
+
+            <hr>
+
+            <!-- Buttons -->
+            <div class="action-buttons">
+                <a href="{{ url_for('customer.edit_review', review_id=item.review.id) }}" 
+                   class="btn btn-edit me-2">
+                   ✏ Edit
+                </a>
+
+                <form action="{{ url_for('customer.delete_review', review_id=item.review.id) }}" 
+                      method="POST" style="display:inline;">
+                    <button class="btn btn-delete">🗑 Delete</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">You have not written any reviews yet.</p>
+    {% endif %}
+
+    <!-- Pagination -->
+    <div class="pagination-custom mt-4">
+        {% if pagination.has_prev %}
+            <a class="btn btn-outline-secondary" href="?page={{ pagination.prev_num }}">← Previous</a>
+        {% endif %}
+
+        {% if pagination.has_next %}
+            <a class="btn btn-primary" href="?page={{ pagination.next_num }}">Next →</a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

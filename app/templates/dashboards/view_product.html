@@ -1,0 +1,181 @@
+{% extends "customer_layout_navbar.html" %}
+
+{% block content %}
+
+<style>
+/* Wrapper card */
+.view-wrapper {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+/* Image box */
+.product-img-box {
+    width: 100%;
+    height: 420px;
+    background: #f8fafc;
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.product-img-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+/* Details section */
+.details-section {
+    margin-top: 20px;
+    background: #f9fafb;
+    padding: 20px 25px;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.details-section h3 {
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.detail-item {
+    margin-bottom: 12px;
+    font-size: 1rem;
+}
+
+/* Buttons */
+.buttons-area {
+    margin-top: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Matching Add Product style: pill shape + gradient hover */
+.btn-custom {
+    padding: 12px 28px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px; /* pill shape */
+    color: white;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #0d6efd, #3a8dff);
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #0b5ed7, #2a76d1);
+    transform: translateY(-2px);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #dc3545, #ff5c6a);
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #bb2d3b, #e04b5b);
+    transform: translateY(-2px);
+}
+
+.btn-back {
+    background: linear-gradient(135deg, #6c757d, #a0a5ab);
+}
+
+.btn-back:hover {
+    background: linear-gradient(135deg, #5c636a, #888f96);
+    transform: translateY(-2px);
+}
+
+.buttons-area .btn i {
+    margin-right: 6px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .product-img-box {
+        height: 300px;
+    }
+
+    .details-section {
+        margin-top: 25px;
+    }
+}
+</style>
+
+<div class="view-wrapper">
+
+    <!-- Page Title -->
+    <h2 class="text-center mb-4"><b>Product Details</b></h2>
+
+    <div class="row g-4">
+
+        <!-- Image Left -->
+        <div class="col-lg-5">
+            <div class="product-img-box">
+                {% if product.image_path %}
+                    <img src="{{ url_for('static', filename=product.image_path) }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='images/no-image.png') }}">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Details Right -->
+        <div class="col-lg-7">
+            <div class="details-section">
+
+                <h3>{{ product.name }}</h3>
+                <p class="text-muted">{{ product.description }}</p>
+
+                <hr>
+
+                <div class="detail-item"><b>SKU:</b> {{ product.sku }}</div>
+                <div class="detail-item"><b>Brand:</b> {{ product.brand }}</div>
+                <div class="detail-item"><b>Price:</b> LKR {{ product.price }}</div>
+                <div class="detail-item"><b>Stock:</b> {{ product.stock }}</div>
+
+                <div class="detail-item">
+                    <b>Dimensions:</b> {{ product.width_mm }}mm × {{ product.height_mm }}mm × {{ product.thickness_mm }}mm
+                </div>
+
+                <!-- Buttons -->
+                <div class="buttons-area">
+
+                    <a href="{{ url_for('supplier.edit_product', id=product.id) }}" 
+                       class="btn btn-edit btn-custom btn-lg">
+                        <i class="fas fa-edit"></i> Edit Product
+                    </a>
+
+                    <a href="{{ url_for('supplier.delete_product', id=product.id) }}" 
+                       class="btn btn-delete btn-custom btn-lg"
+                       onclick="return confirm('Are you sure you want to delete {{ product.name }}?');">
+                        <i class="fas fa-trash"></i> Delete
+                    </a>
+
+                    <a href="{{ url_for('supplier.dashboard') }}" 
+                       class="btn btn-back btn-custom btn-lg">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

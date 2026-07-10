@@ -1,0 +1,296 @@
+{% extends "customer_layout_navbar.html" %}
+{% block content %}
+
+<div class="page-header">
+    <h1>Available Installers</h1>
+</div>
+
+<div class="installer-grid">
+    {% for i in installers %}
+    <div class="installer-card">
+        
+        <div class="img-wrapper">
+            <img src="{{ i.profile_image or '/static/default-avatar.png' }}" class="installer-img">
+        </div>
+
+        <h3 class="installer-name">{{ i.user.full_name }}</h3>
+        <p class="installer-bio">{{ i.bio[:80] }}...</p>
+
+        <div class="installer-stats">
+            <div class="stat">
+                ⭐ <span>5.0</span>
+            </div>
+            <div class="stat">
+                ✔ <span>{{ i.bookings|selectattr("status", "equalto", "completed")|list|length }}</span> Jobs
+            </div>
+        </div>
+
+        <a href="{{ url_for('public_installer.view_installer', installer_id=i.id) }}" class="btn-view">
+            View Profile
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+<hr class="divider">
+
+<div class="page-header">
+    <h1>My Installer Bookings</h1>
+</div>
+
+{% if not customer_bookings %}
+<p class="no-bookings">You have no bookings yet.</p>
+{% else %}
+<div class="table-wrapper">
+<table class="booking-table">
+    <thead>
+        <tr>
+            <th>Installer</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Review</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for b in customer_bookings %}
+        <tr>
+            <td>{{ b.installer.user.full_name }}</td>
+            <td>{{ b.scheduled_date }}</td>
+            <td>
+                {% if b.status == "accepted" %}
+                    <span class="status accepted">Accepted</span>
+                {% elif b.status == "completed" %}
+                    <span class="status completed">Completed</span>
+                {% else %}
+                    <span class="status pending">{{ b.status }}</span>
+                {% endif %}
+            </td>
+
+            <td>
+                {% if b.status == "completed" %}
+                    <a class="btn-review"
+                       href="{{ url_for('customer.leave_review', installer_id=b.installer_id, booking_id=b.id) }}">
+                       Write Review
+                    </a>
+                {% else %}
+                    <span class="no-review">-</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+{% endif %}
+
+<a href="{{ url_for('customer.my_reviews') }}" class="review-card">
+    <div class="review-icon"><i class="fas fa-star"></i></div>
+    <div class="review-content">
+        <h2>⭐ My Reviews</h2>
+        <p>Click to view & manage your reviews</p>
+    </div>
+    <div class="review-arrow"><i class="fas fa-chevron-right"></i></div>
+</a>
+
+<style>
+
+/* ------------------ PAGE HEADER ------------------ */
+.page-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+/* ------------------ INSTALLER GRID ------------------ */
+.installer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+.installer-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    padding: 20px;
+    transition: 0.35s;
+    position: relative;
+}
+
+.installer-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+.img-wrapper {
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.installer-img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: 0.4s ease;
+}
+
+.installer-card:hover .installer-img {
+    transform: scale(1.05);
+}
+
+.installer-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 15px;
+}
+
+.installer-bio {
+    color: #666;
+    font-size: 14px;
+    margin: 10px 0 15px;
+}
+
+.installer-stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    font-size: 15px;
+}
+
+.stat span {
+    font-weight: 700;
+}
+
+/* ----- View Profile Button ----- */
+.btn-view {
+    background: #000;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: 0.25s;
+}
+
+.btn-view:hover {
+    background: #333;
+    transform: translateY(-2px);
+}
+
+/* ------------------ DIVIDER ------------------ */
+.divider {
+    margin: 50px 0;
+    border: 0;
+    height: 2px;
+    background: linear-gradient(to right, transparent, #ddd, transparent);
+}
+
+/* ------------------ BOOKING TABLE ------------------ */
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.booking-table th {
+    background: #000;
+    color: #fff;
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.booking-table td {
+    padding: 14px;
+    border-bottom: 1px solid #eee;
+}
+
+.status {
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 6px;
+}
+
+.status.pending { background: #fff3cd; color: #856404; }
+.status.accepted { background: #cce5ff; color: #004085; }
+.status.completed { background: #d4edda; color: #155724; }
+
+.btn-review {
+    padding: 8px 14px;
+    background: #28a745;
+    color: #fff;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.25s;
+}
+
+.btn-review:hover {
+    background: #1e7e34;
+}
+
+.no-bookings {
+    background: #fff5f5;
+    padding: 15px;
+    border-left: 4px solid red;
+    border-radius: 8px;
+    color: #c00;
+}
+
+/* ------------------ REVIEW CARD ------------------ */
+.review-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    padding: 22px;
+    border-radius: 14px;
+    margin-top: 40px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: #000;
+    transition: 0.3s;
+}
+
+.review-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+}
+
+.review-icon {
+    font-size: 32px;
+    margin-right: 18px;
+    color: #f1c40f;
+}
+
+.review-content h2 {
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.review-content p {
+    color: #666;
+    font-size: 14px;
+}
+
+.review-arrow {
+    margin-left: auto;
+    font-size: 20px;
+    color: #555;
+    transition: 0.3s;
+}
+
+.review-card:hover .review-arrow {
+    transform: translateX(5px);
+}
+
+</style>
+
+{% endblock %}

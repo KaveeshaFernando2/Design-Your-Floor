@@ -1,0 +1,394 @@
+{% extends 'customer_layout_navbar.html' %}
+{% block content %}
+
+<style>
+/* ---------- Shared industrial look (cohesive with cart page) ---------- */
+.container.checkout-container {
+    padding: 40px 0;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Progress steps (matching cart) */
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    position: relative;
+}
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 26px;
+    left: 6%;
+    right: 6%;
+    height: 3px;
+    background: #e9ecef;
+    z-index: 1;
+}
+.step {
+    text-align: center;
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    transition: 0.4s ease;
+}
+.step:hover { transform: translateY(-6px) scale(1.05); }
+.step-icon {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 8px;
+    display: block;
+}
+.step-number {
+    width: 44px;
+    height: 44px;
+    background: #e74c3c;
+    color: #fff;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 6px;
+    font-weight: 700;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #e74c3c;
+    transition: 0.3s;
+}
+.step.active .step-number {
+    background: #2c3e50;
+    box-shadow: 0 0 0 3px #2c3e50;
+}
+.step-text { font-size: 0.9rem; color: #6c757d; font-weight: 500; }
+.step.active .step-text { color: #2c3e50; font-weight: 600; }
+
+/* Layout columns */
+.row.checkout-row {
+    display: flex;
+    gap: 26px;
+    align-items: flex-start;
+}
+
+/* Left: form area */
+.checkout-left {
+    flex: 1.15;
+}
+
+/* Right: summary */
+.checkout-right {
+    flex: 0 0 360px;
+}
+
+/* Card look */
+.card-ui {
+    background: white;
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.02);
+    margin-bottom: 20px;
+}
+
+/* Form inputs */
+.form-label {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    display: block;
+}
+.form-control-ll {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #e6e6e6;
+    box-shadow: none;
+    font-size: 0.95rem;
+}
+
+/* Split row inside form */
+.row-split {
+    display: flex;
+    gap: 12px;
+}
+.row-split .col {
+    flex: 1;
+}
+
+/* Payment method cards */
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.payment-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    transition: 0.25s;
+    background: linear-gradient(180deg, #ffffff 0%, #fbfbfb 100%);
+}
+.payment-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+}
+.payment-card i {
+    font-size: 20px;
+    color: #e74c3c;
+}
+
+/* Order summary (right) */
+.summary-card {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 22px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+}
+.summary-row {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+}
+
+/* Pill Place Order button (prominent) */
+.place-order-btn {
+    display:block;
+    width:100%;
+    padding:14px;
+    border-radius:50px;
+    border:none;
+    font-weight:700;
+    font-size:1.05rem;
+    color:white;
+    background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
+    box-shadow: 0 10px 28px rgba(221,36,118,0.28);
+    transition: all 0.35s;
+    text-align:center;
+}
+.place-order-btn:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 14px 36px rgba(221,36,118,0.42);
+}
+
+/* Trust badges (colored + glow + float) */
+.trust-cards {
+    margin-top: 18px;
+    display:flex;
+    gap:12px;
+}
+.trust-card {
+    flex:1;
+    padding:12px;
+    border-radius:12px;
+    color:white;
+    text-align:center;
+    transition:0.3s;
+    position:relative;
+    overflow:hidden;
+}
+.trust-card i { font-size:20px; display:block; margin-bottom:6px; }
+.trust-card:nth-child(1){ background: linear-gradient(135deg,#6a11cb 0%,#2575fc 100%); }
+.trust-card:nth-child(2){ background: linear-gradient(135deg,#11998e 0%,#38ef7d 100%); }
+.trust-card:nth-child(3){ background: linear-gradient(135deg,#ff512f 0%,#dd2476 100%); }
+.trust-card::before{ content:""; position:absolute; inset: -40% -40% auto auto; width:180%; height:180%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 60%); opacity:0; transform:scale(0.6); transition:0.45s; }
+.trust-card:hover::before{ opacity:1; transform:scale(1); }
+.trust-card:hover{ transform:translateY(-8px) scale(1.03); box-shadow:0 12px 30px rgba(0,0,0,0.18); }
+
+/* small helpers */
+.muted { color:#6c757d; }
+.small { font-size:0.9rem; }
+
+/* Responsive */
+@media (max-width: 992px) {
+    .row.checkout-row { flex-direction: column-reverse; }
+    .checkout-right { width:100%; }
+}
+</style>
+
+<div class="container checkout-container">
+    <!-- Progress Steps (Step 2 -> Details active) -->
+    <div class="progress-steps mb-4">
+        <div class="step">
+            <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" class="step-icon" alt="cart">
+            <div class="step-number">1</div>
+            <div class="step-text">Cart</div>
+        </div>
+
+        <div class="step active">
+            <img src="https://cdn-icons-png.flaticon.com/512/456/456212.png" class="step-icon" alt="details">
+            <div class="step-number">2</div>
+            <div class="step-text">Details</div>
+        </div>
+
+        <div class="step">
+            <img src="https://cdn-icons-png.flaticon.com/512/891/891407.png" class="step-icon" alt="payment">
+            <div class="step-number">3</div>
+            <div class="step-text">Payment</div>
+        </div>
+
+        <div class="step">
+            <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" class="step-icon" alt="complete">
+            <div class="step-number">4</div>
+            <div class="step-text">Complete</div>
+        </div>
+    </div>
+
+    <div class="row checkout-row">
+        <!-- LEFT: Checkout form -->
+        <form class="checkout-left" method="POST" action="{{ url_for('customer.checkout') }}">
+            <div class="row checkout-row">
+            <div class="card-ui">
+                <h3 class="mb-3 fw-bold">Delivery Details</h3>
+
+                <div class="row-split mb-3">
+                    <div class="col">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" name="full_name" class="form-control-ll" placeholder="e.g. Kaveesha Perera" required>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" name="phone" class="form-control-ll" placeholder="+94 77 123 4567" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Delivery Address</label>
+                    <textarea name="address" rows="4" class="form-control-ll" placeholder="Street, house no., landmark..." required></textarea>
+                </div>
+
+                <div class="row-split mb-3">
+                    <div class="col">
+                        <label class="form-label">City / District</label>
+                        <select name="city" class="form-control-ll" required>
+                            <option value="">Select city / district</option>
+                            <option value="Colombo">Colombo</option>
+                            <option value="Gampaha">Gampaha</option>
+                            <option value="Kandy">Kandy</option>
+                            <option value="Matara">Matara</option>
+                            <!-- add more options as needed -->
+                        </select>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Postal Code</label>
+                        <input type="text" name="postal_code" class="form-control-ll" placeholder="Postal code" required>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <small class="muted">Preferred delivery date & time (optional)</small>
+                    <input type="datetime-local" name="delivery_time" class="form-control-ll mt-2">
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <h3 class="mb-3 fw-bold">Payment Method</h3>
+
+                <div class="payment-options">
+                    <label class="payment-card">
+                        <input class="form-check-input" type="radio" name="payment_method" value="cash_on_delivery" required>
+                        <i class="fas fa-money-bill-wave"></i>
+                        <div>
+                            <div class="small fw-bold">Cash on Delivery</div>
+                            <div class="muted small">Pay when you receive the tiles</div>
+                        </div>
+                    </label>
+
+                    <label class="payment-card">
+                        <input class="form-check-input" type="radio" name="payment_method" value="credit_card">
+                        <i class="fas fa-credit-card"></i>
+                        <div>
+                            <div class="small fw-bold">Credit / Debit Card</div>
+                            <div class="muted small">Visa, MasterCard supported</div>
+                        </div>
+                    </label>
+
+                    <label class="payment-card">
+                        <input class="form-check-input" type="radio" name="payment_method" value="bank_transfer">
+                        <i class="fas fa-university"></i>
+                        <div>
+                            <div class="small fw-bold">Bank Transfer</div>
+                            <div class="muted small">Manual bank deposit</div>
+                        </div>
+                    </label>
+
+                    <label class="payment-card">
+                        <input class="form-check-input" type="radio" name="payment_method" value="online_wallet">
+                        <i class="fas fa-wallet"></i>
+                        <div>
+                            <div class="small fw-bold">Online Wallet / PayHere</div>
+                            <div class="muted small">Fast & secure</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="card-ui">
+                <h3 class="mb-3 fw-bold">Order Notes (optional)</h3>
+                <textarea name="notes" class="form-control-ll" rows="3" placeholder="Leave instructions for delivery or installer..."></textarea>
+            </div>
+        </form>
+
+        <!-- RIGHT: Order summary -->
+        <div class="checkout-right">
+            <div class="summary-card">
+                <h4 class="fw-bold mb-3">Order Summary</h4>
+
+                <div class="summary-row">
+                    <div class="small">Items</div>
+                    <div class="small">LKR {{ items_total }}</div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="small">Delivery</div>
+                    <div class="small">LKR {{ delivery }}</div>
+                </div>
+
+                <div class="summary-row">
+                    <div class="small">Installation</div>
+                    <div class="small">LKR {{ installation }}</div>
+                </div>
+
+                <hr style="border-color: rgba(255,255,255,0.18)">
+
+                <div class="summary-row mb-4">
+                    <div class="fw-bold">Grand Total</div>
+                    <div class="h5 fw-bold">LKR {{ total }}</div>
+                </div>
+
+                <!-- Place Order button (submit) - keep original form action -->
+                <button type="submit" class="place-order-btn">
+                    <!-- Keep the same hidden inputs server expects, if any (not changing backend) -->
+                    <i class="fas fa-check-circle me-2"></i> Place Order — LKR {{ total }}
+</button>
+                </form>
+
+                <div class="text-center mt-3">
+                    <small class="text-white">🔒 Secure checkout · SSL encrypted</small>
+                </div>
+
+            </div>
+
+            <!-- Trust badges -->
+            <div class="trust-cards">
+                <div class="trust-card">
+                    <i class="fas fa-shield-alt"></i>
+                    <div class="small fw-semibold">Secure Payment</div>
+                </div>
+                <div class="trust-card">
+                    <i class="fas fa-truck"></i>
+                    <div class="small fw-semibold">Free Delivery</div>
+                </div>
+                <div class="trust-card">
+                    <i class="fas fa-undo"></i>
+                    <div class="small fw-semibold">30-Day Return</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

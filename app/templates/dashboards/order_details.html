@@ -1,0 +1,331 @@
+{% extends 'customer_layout_navbar.html' %}
+
+{% block content %}
+<style>
+/* ===== Industrial-Level Styling ===== */
+
+/* Container */
+.order-details-container {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding: 40px 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Cards */
+.industrial-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    margin-bottom: 30px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.industrial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+}
+
+.card-header-industrial {
+    background: #2c3e50;
+    color: #fff;
+    padding: 20px 25px;
+}
+
+.card-header-industrial h4 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+/* Back Button */
+.back-btn-industrial {
+    background: #495057;
+    color: #fff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.back-btn-industrial:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    color: #fff;
+}
+
+/* Summary Grid */
+.order-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 25px;
+    background: #f8f9fa;
+}
+
+.summary-item {
+    border-left: 4px solid #e74c3c;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.summary-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2c3e50;
+}
+
+.status-badge-industrial {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+.status-badge-industrial.pending { background: #f39c12; }
+.status-badge-industrial.paid { background: #28a745; }
+.status-badge-industrial.processing { background: #3498db; }
+.status-badge-industrial.shipped { background: #f39c12; }
+.status-badge-industrial.delivered { background: #27ae60; }
+
+/* Progress Tracker */
+.progress-tracker { padding: 20px; }
+
+.timeline {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin: 30px 0;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 25px;
+    left: 10%;
+    right: 10%;
+    height: 4px;
+    background: #e9ecef;
+    z-index: 1;
+    border-radius: 2px;
+}
+
+.timeline-step {
+    text-align: center;
+    position: relative;
+    flex: 1;
+}
+
+.step-indicator {
+    width: 40px;
+    height: 40px;
+    background: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 8px;
+    font-weight: bold;
+    border: 3px solid #fff;
+    transition: all 0.3s ease;
+}
+
+.step-indicator.active { background: #3498db; color: #fff; transform: scale(1.1); }
+.step-indicator.completed { background: #28a745; color: #fff; }
+
+.step-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #6c757d;
+}
+
+.step-indicator.active ~ .step-label,
+.step-indicator.completed ~ .step-label { color: #2c3e50; font-weight: 700; }
+
+/* Table */
+.table-industrial {
+    background: #fff;
+    border-radius: 10px;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-industrial th, .table-industrial td { padding: 15px 12px; }
+.table-industrial thead { background: #2c3e50; color: #fff; }
+.table-industrial tbody tr:hover { background: #f8f9fa; }
+
+.quantity-badge {
+    background: #3498db;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-weight: 600;
+}
+
+/* Grand Total */
+.grand-total {
+    background: #34495e;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.grand-total-amount {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #e74c3c;
+}
+
+/* Download Button */
+.download-btn-industrial {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+
+.download-btn-industrial:hover {
+    transform: translateY(-2px) scale(1.03);
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .order-summary-grid { grid-template-columns: 1fr; }
+    .timeline { flex-direction: column; gap: 20px; }
+    .timeline::before { display: none; }
+}
+</style>
+
+<div class="order-details-container">
+    <div class="container">
+
+        <!-- Back Button -->
+        <div class="mb-3">
+            <a href="{{ url_for('customer.orders') }}" class="back-btn-industrial">
+                <i class="fas fa-arrow-left"></i> Back to Orders
+            </a><br><br>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="industrial-card">
+            <div class="card-header-industrial">
+                <h4>📦 Order #{{ order.id }} - Summary</h4>
+            </div>
+            <div class="order-summary-grid">
+                <div class="summary-item">
+                    <div class="summary-label">Status</div>
+                    <div class="summary-value">
+                        <span class="status-badge-industrial {{ order.status }}">
+                            {{ order.status|capitalize }}
+                        </span>
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Amount</div>
+                    <div class="summary-value">Rs. {{ order.total }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Date</div>
+                    <div class="summary-value">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Delivery Address</div>
+                    <div class="summary-value">{{ order.delivery_address }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Tracker -->
+        <div class="industrial-card">
+            <div class="card-header-industrial">
+                <h4>🚚 Order Tracking</h4>
+            </div>
+            <div class="progress-tracker">
+                <div class="timeline">
+                    {% set stages = ['pending','paid','processing','shipped','delivered'] %}
+                    {% set current_index = stages.index(order.status) if order.status in stages else 0 %}
+                    {% for stage in stages %}
+                        <div class="timeline-step">
+                            <div class="step-indicator {% if loop.index0 < current_index %}completed{% elif loop.index0 == current_index %}active{% endif %}">
+                                {{ loop.index }}
+                            </div>
+                            <div class="step-label">{{ stage|capitalize }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Items -->
+        <div class="industrial-card">
+            <div class="card-header-industrial">
+                <h4>🛍️ Order Items</h4>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-industrial mb-0">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Unit Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>Rs. {{ item.unit_price }}</td>
+                                <td><span class="quantity-badge">{{ item.qty }}</span></td>
+                                <td>Rs. {{ item.unit_price * item.qty }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Grand Total -->
+                <div class="grand-total">
+                    <h5>Grand Total</h5>
+                    <div class="grand-total-amount">Rs. {{ order.total }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Invoice -->
+        <div class="text-center mt-4">
+            <a href="{{ url_for('customer.download_invoice', order_id=order.id) }}" class="download-btn-industrial">
+                <i class="fas fa-file-pdf"></i> Download Invoice
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

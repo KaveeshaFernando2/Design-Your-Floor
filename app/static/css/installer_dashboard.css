@@ -1,0 +1,67 @@
+.dashboard-tiles {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.tile {
+    flex: 1 1 200px;
+    border: 1px solid #ccc;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 2px 4px 20px rgba(0,0,0,0.2);
+}
+
+.btn {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.btn:hover { background-color: #0056b3; }
+
+.styled-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.styled-table th, .styled-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.styled-table th {
+    background-color: #f4f4f4;
+    text-align: left;
+}
+
+.btn-small { padding: 4px 8px; border-radius: 4px; text-decoration:none; color:white; margin-right:4px; }
+.accept { background-color:green; }
+.cancel { background-color:red; }
+.start { background-color:orange; }
+.complete { background-color:blue; }
+.btn-small:hover { opacity:0.8; }
+
+.reviews-list {
+    list-style: none;
+    padding: 0;
+}
+.reviews-list li {
+    background: #f9f9f9;
+    padding: 8px;
+    margin-bottom: 6px;
+    border-radius: 5px;
+}

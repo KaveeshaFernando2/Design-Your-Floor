@@ -1,0 +1,734 @@
+{% extends 'customer_layout_navbar.html' %}
+{% block content %}
+
+<style>
+    .cart-container {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 40px 0;
+    }
+    
+    .cart-header {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .cart-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        border: none;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .cart-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .product-image {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 3px solid #e9ecef;
+    }
+    
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .quantity-btn {
+        width: 40px;
+        height: 40px;
+        border: 2px solid #e74c3c;
+        background: white;
+        color: #e74c3c;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .quantity-btn:hover {
+        background: #e74c3c;
+        color: white;
+        transform: scale(1.1);
+    }
+    
+    .quantity-input {
+        width: 60px;
+        text-align: center;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        padding: 8px;
+        font-weight: bold;
+    }
+    
+    .price-tag {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-weight: bold;
+        font-size: 1.1em;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-industrial {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .btn-industrial:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(44, 62, 80, 0.3);
+        color: white;
+    }
+    
+    .btn-danger-industrial {
+        background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-danger-industrial:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+        color: white;
+    }
+    
+    .summary-card {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    
+    .empty-cart {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .empty-cart-icon {
+        font-size: 80px;
+        color: #bdc3c7;
+        margin-bottom: 20px;
+    }
+    
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 40px;
+        position: relative;
+    }
+    
+    .progress-steps::before {
+        content: '';
+        position: absolute;
+        top: 20px;
+        left: 10%;
+        right: 10%;
+        height: 3px;
+        background: #e9ecef;
+        z-index: 1;
+    }
+    
+    .step {
+        text-align: center;
+        position: relative;
+        z-index: 2;
+        flex: 1;
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: #e74c3c;
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: bold;
+        border: 3px solid white;
+        box-shadow: 0 0 0 3px #e74c3c;
+    }
+    
+    .step.active .step-number {
+        background: #2c3e50;
+        box-shadow: 0 0 0 3px #2c3e50;
+    }
+    
+    .step-text {
+        font-size: 0.9em;
+        color: #6c757d;
+        font-weight: 500;
+    }
+    
+    .step.active .step-text {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+    
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .quantity-control {
+            justify-content: center;
+            margin: 10px 0;
+        }
+        
+        .cart-header {
+            text-align: center;
+            padding: 20px;
+        }
+    }
+
+    /* Grid layout for cart items */
+.cart-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 25px;
+}
+
+/* Each product card */
+.cart-card-grid {
+    background: #ffffff;
+    border-radius: 15px;
+    padding: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.cart-card-grid:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+}
+
+/* Image */
+.grid-image {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* Title / SKU */
+.grid-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-top: 12px;
+    color: #2c3e50;
+}
+
+.grid-sku {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* Price */
+.grid-price {
+    background: #e74c3c;
+    color: white;
+    padding: 8px;
+    border-radius: 10px;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+/* Quantity box */
+.grid-qty {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.qty-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #e74c3c;
+    background: white;
+    color: #e74c3c;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.qty-btn:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+.qty-input {
+    width: 60px;
+    text-align: center;
+    border: 2px solid #eee;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+/* Total price below */
+.grid-total {
+    font-weight: bold;
+    color: #34495e;
+    margin-top: 8px;
+    font-size: 0.95rem;
+}
+
+/* Responsive for tablets */
+@media (max-width: 992px) {
+    .cart-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Responsive for phones */
+@media (max-width: 576px) {
+    .cart-grid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+/* ====== Checkout Button (Pill Style) ====== */
+.checkout-btn {
+    width: 100%;
+    padding: 16px;
+    border-radius: 50px;
+    border: none;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
+    box-shadow: 0 8px 24px rgba(221, 36, 118, 0.35);
+    transition: all 0.35s ease;
+}
+
+.checkout-btn:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 12px 32px rgba(221, 36, 118, 0.5);
+    color: white;
+}
+
+.trust-cards {
+    margin-top: 25px;
+    display: flex;
+    gap: 15px;
+    text-align: center;
+}
+
+.trust-card {
+    flex: 1;
+    padding: 18px 10px;
+    border-radius: 18px;
+    color: white;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: 0.3s ease;
+    border: none;
+}
+
+/* Secure Payment */
+.trust-card:nth-child(1) {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+}
+
+/* Free Delivery */
+.trust-card:nth-child(2) {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+/* 30-Day Return */
+.trust-card:nth-child(3) {
+    background: linear-gradient(135deg, #ff512f 0%, #dd2476 100%);
+}
+
+.trust-card i {
+    font-size: 28px;
+    margin-bottom: 8px;
+    color: white;
+}
+
+.trust-card small {
+    font-weight: 600;
+    color: white;
+}
+
+.trust-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Glow + Floating Animation */
+.trust-card {
+    position: relative;
+    overflow: hidden;
+    transition: 0.4s ease;
+}
+
+/* Soft Glow */
+.trust-card::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -40%;
+    width: 180%;
+    height: 180%;
+    background: radial-gradient(circle, rgba(255,255,255,0.25) 0%, transparent 60%);
+    opacity: 0;
+    transition: 0.5s ease;
+    transform: scale(0.5);
+}
+
+/* Show glow on hover */
+.trust-card:hover::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Floating animation */
+.trust-card:hover {
+    transform: translateY(-8px) scale(1.03);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.25);
+}
+
+/* Step Icons */
+.step-icon {
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 8px;
+    display: block;
+}
+
+/* Glow + Floating Animation */
+.step {
+    transition: 0.4s ease;
+    position: relative;
+}
+
+.step:hover {
+    transform: translateY(-6px) scale(1.05);
+}
+
+.step-number {
+    position: relative;
+    z-index: 2;
+}
+
+/* Glow ring */
+.step::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 65px;
+    height: 65px;
+    background: radial-gradient(circle, rgba(255,255,255,0.35) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: 0.4s ease;
+    pointer-events: none;
+}
+
+.step:hover::before {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.1);
+}
+
+/* Active step stronger glow */
+.step.active:hover::before {
+    background: radial-gradient(circle, rgba(255,255,255,0.55) 0%, transparent 70%);
+}
+
+/* Adjust circle animation */
+.step-number {
+    transition: 0.3s ease;
+}
+
+.step:hover .step-number {
+    transform: scale(1.1);
+}
+
+
+
+
+</style>
+
+<div class="cart-container">
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+    <div class="step active">
+        <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" class="step-icon">
+        <div class="step-number">1</div>
+        <div class="step-text">Cart</div>
+    </div>
+
+    <div class="step">
+        <img src="https://cdn-icons-png.flaticon.com/512/456/456212.png" class="step-icon">
+        <div class="step-number">2</div>
+        <div class="step-text">Details</div>
+    </div>
+
+    <div class="step">
+        <img src="https://cdn-icons-png.flaticon.com/512/891/891407.png" class="step-icon">
+        <div class="step-number">3</div>
+        <div class="step-text">Payment</div>
+    </div>
+
+    <div class="step">
+        <img src="https://cdn-icons-png.flaticon.com/512/845/845646.png" class="step-icon">
+        <div class="step-number">4</div>
+        <div class="step-text">Complete</div>
+    </div>
+</div>
+
+
+        <!-- Cart Header -->
+        <div class="cart-header">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-5 fw-bold mb-3">🛒 Your Shopping Cart</h1>
+                    <p class="lead mb-0">Review your selected tiles and proceed to checkout</p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="h2 mb-0">{{ cart|length }} Items</div>
+                    <small class="text-light">in your cart</small>
+                </div>
+            </div>
+        </div>
+
+        {% if not cart %}
+        <!-- Empty Cart -->
+        <div class="empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h2 class="text-muted mb-3">Your Cart is Empty</h2>
+            <p class="text-muted mb-4">Looks like you haven't added any tiles to your cart yet.</p>
+            <a href="{{ url_for('customer.products') }}" class="btn btn-industrial btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+            </a>
+        </div>
+        {% else %}
+
+        <!-- Cart Items Grid -->
+<div class="col-lg-8">
+    <div class="cart-grid">
+        {% for pid, item in cart.items() %}
+        <div class="cart-card-grid" data-price="{{ item.price }}">
+            <img src="{{ url_for('static', filename=item.image) }}"
+                 class="grid-image" alt="{{ item.name }}">
+
+            <h5 class="grid-title">{{ item.name }}</h5>
+            <p class="grid-sku">SKU: {{ pid }}</p>
+
+            <div class="grid-price">
+                LKR {{ item.price }}
+            </div>
+
+            <form method="POST" action="{{ url_for('customer.update_cart', product_id=pid) }}" 
+                  class="grid-qty-form">
+
+                <div class="grid-qty">
+                    <button type="button" class="qty-btn dec">-</button>
+
+                    <input type="number" name="qty" value="{{ item.qty }}" 
+                           min="1" class="qty-input">
+
+                    <button type="button" class="qty-btn inc">+</button>
+                </div>
+
+                <button type="submit" class="btn btn-sm btn-dark w-100 mt-2">
+                    Update
+                </button>
+            </form>
+
+            <div class="grid-total">Total: LKR {{ item.price * item.qty }}</div>
+
+            <a href="{{ url_for('customer.remove_cart_item', product_id=pid) }}"
+               class="btn btn-danger btn-sm w-100 mt-2">
+               <i class="fas fa-trash me-1"></i> Remove
+            </a>
+        </div>
+        {% endfor %}
+    </div><br>
+
+    <!-- Buttons -->
+    <div class="action-buttons mt-4">
+        <a href="{{ url_for('customer.products') }}" class="btn btn-industrial">
+            <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+        </a>
+        <a href="{{ url_for('customer.clear_cart') }}" class="btn btn-danger-industrial">
+            <i class="fas fa-broom me-2"></i>Clear Cart
+        </a>
+    </div>
+</div><br>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="summary-card" 
+     data-delivery="1500" 
+     data-install="3000">
+                    <h3 class="text-white mb-4">Order Summary</h3>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-light">Items ({{ cart|length }})</span>
+                        <span class="text-white">LKR {{ total }}</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-light">Delivery</span>
+                        <span class="text-white">LKR 1,500</span>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-light">Installation</span>
+                        <span class="text-white">LKR 3,000</span>
+                    </div>
+                    
+                    <hr style="border-color: rgba(255,255,255,0.3);">
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <strong class="text-white">Total Amount</strong>
+                        <strong class="text-white h4">LKR {{ total + 1500 + 3000 }}</strong>
+                    </div>
+                    <br><br><br>
+                    <!-- Checkout Button -->
+<a href="{{ url_for('customer.checkout') }}" 
+   class="checkout-btn text-center d-block mt-3">
+    <i class="fas fa-lock me-2"></i> Proceed to Checkout
+</a><br><br>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-light">🔒 Secure checkout · SSL encrypted</small>
+                    </div>
+                </div>
+
+                <!-- Trust Cards -->
+<div class="trust-cards">
+    <div class="trust-card">
+        <i class="fas fa-shield-alt"></i>
+        <div><small>Secure Payment</small></div>
+    </div>
+    <div class="trust-card">
+        <i class="fas fa-truck"></i>
+        <div><small>Free Delivery</small></div>
+    </div>
+    <div class="trust-card">
+        <i class="fas fa-undo"></i>
+        <div><small>30-Day Return</small></div>
+    </div>
+</div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+    // Function to update total for one product card
+    function updateTotal(card) {
+        const price = parseFloat(card.dataset.price);
+        const qty = parseInt(card.querySelector(".qty-input").value);
+        const totalElement = card.querySelector(".grid-total");
+
+        totalElement.textContent = "Total: LKR " + (price * qty);
+    }
+
+    // Apply event listeners to all + buttons
+    document.querySelectorAll(".qty-btn.inc").forEach(button => {
+        button.addEventListener("click", () => {
+            const card = button.closest(".cart-card-grid");
+            const input = card.querySelector(".qty-input");
+            input.value = parseInt(input.value) + 1;
+
+            updateTotal(card); // 🔥 auto-update total
+        });
+    });
+
+    // Apply event listeners to all – buttons
+    document.querySelectorAll(".qty-btn.dec").forEach(button => {
+        button.addEventListener("click", () => {
+            const card = button.closest(".cart-card-grid");
+            const input = card.querySelector(".qty-input");
+
+            let current = parseInt(input.value);
+            if (current > 1) {
+                input.value = current - 1;
+            }
+
+            updateTotal(card); // 🔥 auto-update total
+        });
+    });
+
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    function updateSummary() {
+        let itemsTotal = 0;
+
+        // Loop through each cart product
+        document.querySelectorAll(".cart-card-grid").forEach(card => {
+            const price = parseFloat(card.dataset.price);
+            const qty = parseInt(card.querySelector(".qty-input").value);
+            itemsTotal += price * qty;
+        });
+
+        // Delivery & Installation
+        const summary = document.querySelector(".summary-card");
+        const delivery = parseFloat(summary.dataset.delivery);
+        const install = parseFloat(summary.dataset.install);
+
+        const grandTotal = itemsTotal + delivery + install;
+
+        // Update UI
+        document.getElementById("items-total").textContent = "LKR " + itemsTotal;
+        document.getElementById("grand-total").textContent = "LKR " + grandTotal;
+    }
+
+    // Run when clicking + or –
+    document.querySelectorAll(".qty-btn").forEach(btn => {
+        btn.addEventListener("click", updateSummary);
+    });
+
+});
+</script>
+
+
+
+{% endblock %}

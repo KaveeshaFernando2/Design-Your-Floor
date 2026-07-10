@@ -1,0 +1,183 @@
+{% extends "supplier_layout_navbar.html" %}
+{% block content %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.3.0/chart.umd.min.js"></script>
+
+<style>
+.analytics-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:18px; margin-bottom:18px; }
+.kpi { background: #fff; padding:18px; border-radius:12px; box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
+.kpi h3 { margin:0 0 6px; font-size:0.95rem; color:#555; }
+.kpi .value { font-size:1.6rem; font-weight:700; color:#111; }
+.section { background:#fff; padding:20px; border-radius:12px; box-shadow:0 8px 26px rgba(0,0,0,0.05); margin-bottom:20px;}
+.top-products li { margin:8px 0; padding:8px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; }
+.low-stock { color:#b71c1c; font-weight:600; }
+.small { font-size:0.9rem; color:#666; }
+.download-btns { display:flex; gap:10px; margin-bottom:15px; }
+.download-btns a { text-decoration:none; padding:6px 12px; background:#2e7d32; color:#fff; border-radius:6px; font-size:0.9rem; }
+.download-btns a.pdf { background:#c62828; }
+</style>
+
+<div class="container">
+  <h2>Supplier Analytics</h2>
+
+  <!-- DOWNLOAD BUTTONS -->
+  <div class="download-btns">
+    <a href="{{ url_for('supplier.download_analytics_excel') }}" class="btn btn-success">Download Excel</a>
+
+    <a href="{{ url_for('supplier.download_analytics_pdf') }}" class="pdf">Download PDF</a>
+  </div>
+
+  <!-- KPI SECTION -->
+  <div class="analytics-grid">
+    <div class="kpi">
+      <h3>Total Revenue</h3>
+      <div class="value">Rs. {{ "{:,.2f}".format(total_revenue) }}</div>
+      <div class="small">Revenue from your products</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Total Orders</h3>
+      <div class="value">{{ total_orders }}</div>
+      <div class="small">Distinct orders including your products</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Avg Order Value</h3>
+      <div class="value">Rs. {{ "{:,.2f}".format(avg_order_value) }}</div>
+      <div class="small">Average value of orders</div>
+    </div>
+
+    <div class="kpi">
+      <h3>Assigned Deliveries</h3>
+      <div class="value">{{ delivery_stats.get('assigned', 0) }}</div>
+      <div class="small">Assigned / Out / Delivered</div>
+    </div>
+  </div>
+
+  <!-- MONTHLY SALES -->
+  <div class="section">
+    <h3>Monthly Sales (last 6 months)</h3>
+    <canvas id="monthlyChart" style="max-height:320px;"></canvas>
+  </div>
+
+  <!-- TOP PRODUCTS + PIE CHART -->
+  <div class="section" style="display:grid; grid-template-columns: 1fr 380px; gap:18px;">
+    <div>
+      <h3>Top Products (by qty sold)</h3>
+      <ul class="top-products">
+        {% if top_products %}
+          {% for p in top_products %}
+          <li>
+            <div>
+              <strong>{{ p.name }}</strong>
+              <div class="small">Sold: {{ p.qty_sold }} • Revenue: Rs. {{ "{:,.2f}".format(p.revenue) }}</div>
+            </div>
+            <div class="small">#{{ loop.index }}</div>
+          </li>
+          {% endfor %}
+        {% else %}
+          <li>No sales data yet.</li>
+        {% endif %}
+      </ul>
+
+      <!-- Pie Chart -->
+      <div class="card shadow p-4 mt-3">
+        <h4 class="mb-3">Top Selling Products (By Quantity Sold)</h4>
+        <canvas id="topProductsChart" style="height: 220px; max-width: 250px; margin: auto;"></canvas>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE: LOW STOCK & DELIVERY -->
+    <div>
+      <h3>Low stock alerts</h3>
+      {% if low_stock %}
+        <ul>
+          {% for p in low_stock %}
+            <li class="low-stock">{{ p.name }} — {{ p.stock }} left</li>
+          {% endfor %}
+        </ul>
+        <a href="{{ url_for('supplier.dashboard') }}" class="btn">Manage Products</a>
+      {% else %}
+        <p>No low-stock products.</p>
+      {% endif %}
+
+      <hr style="margin:12px 0;">
+      <h4>Delivery status summary</h4>
+      <p>Assigned: {{ delivery_stats.get('assigned',0) }}</p>
+      <p>Out for delivery: {{ delivery_stats.get('out_for_delivery',0) }}</p>
+      <p>Delivered: {{ delivery_stats.get('delivered',0) }}</p>
+      <p>Failed: {{ delivery_stats.get('failed',0) }}</p>
+    </div>
+  </div>
+
+  <!-- RAW NUMBERS -->
+  <div class="section">
+    <h3>Raw figures</h3>
+    <table class="table">
+      <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Total revenue</td><td>Rs. {{ "{:,.2f}".format(total_revenue) }}</td></tr>
+        <tr><td>Total orders</td><td>{{ total_orders }}</td></tr>
+        <tr><td>Avg order value</td><td>Rs. {{ "{:,.2f}".format(avg_order_value) }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MONTHLY SALES CHART JS -->
+<script>
+const monthlyLabels = {{ monthly_labels|tojson }};
+const monthlyValues = {{ monthly_values|tojson }};
+
+const ctx = document.getElementById('monthlyChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: monthlyLabels,
+        datasets: [{
+            label: 'Sales (Rs.)',
+            data: monthlyValues,
+            backgroundColor: 'rgba(46, 125, 50, 0.7)',
+            borderRadius: 6
+        }]
+    },
+    options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: "bottom" } },
+    layout: { padding: 5 }
+}
+});
+</script>
+
+<!-- PIE CHART SCRIPT -->
+<script>
+const pieLabels = {{ pie_labels | tojson }};
+const pieValues = {{ pie_values | tojson }};
+
+const pieCtx = document.getElementById('topProductsChart').getContext('2d');
+new Chart(pieCtx, {
+    type: 'pie',
+    data: {
+        labels: pieLabels,
+        datasets: [{
+            data: pieValues,
+            backgroundColor: [
+                'rgba(255,99,132,0.7)',
+                'rgba(54,162,235,0.7)',
+                'rgba(255,206,86,0.7)',
+                'rgba(75,192,192,0.7)',
+                'rgba(153,102,255,0.7)',
+                'rgba(255,159,64,0.7)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { position: "bottom" } }
+    }
+});
+</script>
+
+{% endblock %}

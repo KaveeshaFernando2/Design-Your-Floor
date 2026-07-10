@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Room Diagram</title>
+    <style>
+        body { 
+    margin: 0; 
+    padding: 0;
+    overflow-y: auto;     /* enable page scrolling */
+    overflow-x: hidden; 
+    font-family: Arial, sans-serif;
+}
+
+#container { 
+    width: 100%; 
+    height: 100vh; 
+    position: fixed; 
+    top: 0; 
+    left: 0;
+}
+
+.controls {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(255,255,255,0.9);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 100;
+    max-width: 300px;
+    max-height: 95vh;  /* allow inner scroll */
+    overflow-y: auto;
+}
+        button {
+            display: block;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+            width: 100%;
+        }
+        .texture-controls {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        .texture-controls h5 {
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <div class="controls">
+        <h4>3D Room</h4>
+        
+        <!-- Floor Texture -->
+
+        <div class="group">
+    <label>Use product image (from system)</label>
+    <button id="use-product-image">Use Product Image</button>
+
+    <div style="margin-top:6px;">
+        <small class="small">
+            Product image: <code>{{ product_image }}</code>
+        </small>
+    </div>
+</div>
+
+<div class="texture-controls">
+    <h5>Ground Finish</h5>
+    <input type="file" id="floorImage" accept="image/*">
+    <button onclick="loadFloorTexture()">Apply the picture to the ground</button>
+</div>
+
+        <!-- Picture on the walls -->
+        <div class="texture-controls">
+            <h5>Wall Finish</h5>
+            <input type="file" id="wallImage" accept="image/*">
+            <button onclick="loadWallTexture()">Put the picture on the walls.</button>
+        </div>
+
+        <!-- Entire Room Texture -->
+        <div class="texture-controls">
+            <h5>Room Finish</h5>
+            <input type="file" id="roomImage" accept="image/*">
+            <button onclick="loadRoomTexture()">Apply the picture to the room</button>
+        </div>
+        
+        <button onclick="addWalls()">Build walls</button>
+        <button onclick="addFloor()">Build the ground</button>
+        <button onclick="addTable()">Add Table</button>
+        <button onclick="addChair()">Add Chair</button>
+        <button onclick="addBed()">Add Bed</button>
+        <button onclick="resetTextures()" style="background: #f44336;">Remove finishes</button>
+    </div>
+
+    <!-- Three.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <script>
+        // Basic variables
+        let scene, camera, renderer;
+        let roomWalls = [];
+        let floorMesh = null;
+        let floorTexture = null;
+        let wallTexture = null;
+        let roomTexture = null;
+        
+        // Initialize the 3D scene
+        function init() {
+            console.log("Initializing 3D scene...");
+            
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEEB); // Sky blue background
+            
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(10, 8, 10);
+            camera.lookAt(0, 0, 0);
+            
+            // Create renderer
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Add basic lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 20, 15);
+            scene.add(directionalLight);
+            
+            // Add a simple grid to help visualization
+            const gridHelper = new THREE.GridHelper(20, 20);
+            scene.add(gridHelper);
+            
+            // Add axes helper
+            const axesHelper = new THREE.AxesHelper(5);
+            scene.add(axesHelper);
+            
+            console.log("Scene initialized successfully");
+        }
+        
+        // Load picture to floor
+        function loadFloorTexture() {
+            const fileInput = document.getElementById('floorImage');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert("Please choose a picture for the floor!");
+                return;
+            }
+            
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load(URL.createObjectURL(file), function(texture) {
+                floorTexture = texture;
+                floorTexture.wrapS = THREE.RepeatWrapping;
+                floorTexture.wrapT = THREE.RepeatWrapping;
+                floorTexture.repeat.set(2, 2); // Repeat pattern
+                
+                // Apply texture to existing floor or create new one
+                if (floorMesh) {
+                    floorMesh.material.map = floorTexture;
+                    floorMesh.material.needsUpdate = true;
+                } else {
+                    addFloor(); // Create floor with texture
+                }
+                
+                console.log("Picture applied to the floor");
+            });
+        }
+        
+        // Load picture to walls
+        function loadWallTexture() {
+            const fileInput = document.getElementById('wallImage');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert("Please choose a picture for the walls!");
+                return;
+            }
+            
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load(URL.createObjectURL(file), function(texture) {
+                wallTexture = texture;
+                wallTexture.wrapS = THREE.RepeatWrapping;
+                wallTexture.wrapT = THREE.RepeatWrapping;
+                wallTexture.repeat.set(2, 2); // Repeat pattern
+                
+                // Apply texture to existing walls
+                applyWallTexture();
+                
+                console.log("Picture applied to the walls");
+            });
+        }
+        
+        // Load picture to entire room
+        function loadRoomTexture() {
+            const fileInput = document.getElementById('roomImage');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert("Please choose a picture for the room!");
+                return;
+            }
+            
+            const textureLoader = new THREE.TextureLoader();
+            textureLoader.load(URL.createObjectURL(file), function(texture) {
+                roomTexture = texture;
+                
+                // Apply to both floor and walls
+                if (!floorTexture) {
+                    floorTexture = roomTexture;
+                    floorTexture.wrapS = THREE.RepeatWrapping;
+                    floorTexture.wrapT = THREE.RepeatWrapping;
+                    floorTexture.repeat.set(2, 2);
+                    
+                    if (floorMesh) {
+                        floorMesh.material.map = floorTexture;
+                        floorMesh.material.needsUpdate = true;
+                    }
+                }
+                
+                if (!wallTexture) {
+                    wallTexture = roomTexture;
+                    wallTexture.wrapS = THREE.RepeatWrapping;
+                    wallTexture.wrapT = THREE.RepeatWrapping;
+                    wallTexture.repeat.set(2, 2);
+                    applyWallTexture();
+                }
+                
+                console.log("Picture applied to the entire room");
+            });
+        }
+        
+        // Apply texture to walls
+        function applyWallTexture() {
+            if (roomWalls.length > 0 && wallTexture) {
+                roomWalls.forEach((wall, index) => {
+                    // Front wall remains more transparent
+                    const opacity = index === 1 ? 0.7 : 0.9;
+                    
+                    wall.material = new THREE.MeshBasicMaterial({ 
+                        map: wallTexture,
+                        transparent: true,
+                        opacity: opacity,
+                        side: THREE.DoubleSide
+                    });
+                });
+            }
+        }
+        
+        // Create room walls
+        function addWalls() {
+            // Remove existing walls
+            roomWalls.forEach(wall => scene.remove(wall));
+            roomWalls = [];
+            
+            let wallMaterial;
+            
+            if (wallTexture) {
+                wallMaterial = new THREE.MeshBasicMaterial({ 
+                    map: wallTexture,
+                    transparent: true,
+                    opacity: 0.9,
+                    side: THREE.DoubleSide
+                });
+            } else {
+                wallMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
+                });
+            }
+            
+            // Room dimensions
+            const width = 8;
+            const height = 4;
+            const depth = 6;
+            
+            // Create walls
+            const walls = [
+                { size: [width, height, 0.1], position: [0, height/2, -depth/2], name: "back" }, // Back wall
+                { size: [width, height, 0.1], position: [0, height/2, depth/2], name: "front" },  // Front wall
+                { size: [0.1, height, depth], position: [-width/2, height/2, 0], name: "left" }, // Left wall
+                { size: [0.1, height, depth], position: [width/2, height/2, 0], name: "right" }   // Right wall
+            ];
+            
+            walls.forEach((wall, index) => {
+                const geometry = new THREE.BoxGeometry(...wall.size);
+                const mesh = new THREE.Mesh(geometry, wallMaterial.clone());
+                mesh.position.set(...wall.position);
+                mesh.name = wall.name;
+                
+                // Make front wall more transparent
+                if (index === 1) {
+                    mesh.material.opacity = 0.3;
+                }
+                
+                // Apply texture wrapping for better appearance
+                if (wallTexture) {
+                    mesh.material.map.wrapS = THREE.RepeatWrapping;
+                    mesh.material.map.wrapT = THREE.RepeatWrapping;
+                    
+                    // Adjust repeat based on wall size
+                    if (wall.name === "back" || wall.name === "front") {
+                        mesh.material.map.repeat.set(2, 1);
+                    } else {
+                        mesh.material.map.repeat.set(3, 1);
+                    }
+                }
+                
+                scene.add(mesh);
+                roomWalls.push(mesh);
+            });
+            
+            console.log("Walls added successfully");
+        }
+        
+        // Create floor
+        function addFloor() {
+            // Remove existing floor
+            if (floorMesh) {
+                scene.remove(floorMesh);
+            }
+            
+            const floorGeometry = new THREE.PlaneGeometry(8, 6);
+            let floorMaterial;
+            
+            if (floorTexture) {
+                floorMaterial = new THREE.MeshBasicMaterial({ 
+                    map: floorTexture,
+                    side: THREE.DoubleSide
+                });
+            } else {
+                floorMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0x888888,
+                    side: THREE.DoubleSide
+                });
+            }
+            
+            floorMesh = new THREE.Mesh(floorGeometry, floorMaterial);
+            floorMesh.rotation.x = Math.PI / 2; // Rotate to horizontal
+            floorMesh.position.y = 0; // Ensure floor is at ground level
+            scene.add(floorMesh);
+            
+            console.log("Floor added successfully");
+        }
+        
+        // Reset all textures
+        function resetTextures() {
+            floorTexture = null;
+            wallTexture = null;
+            roomTexture = null;
+            
+            // Reset floor to default
+            if (floorMesh) {
+                floorMesh.material = new THREE.MeshBasicMaterial({ 
+                    color: 0x888888,
+                    side: THREE.DoubleSide
+                });
+            }
+            
+            // Reset walls to default
+            roomWalls.forEach(wall => {
+                wall.material = new THREE.MeshBasicMaterial({ 
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: wall.name === "front" ? 0.3 : 0.8,
+                    side: THREE.DoubleSide
+                });
+            });
+            
+            // Clear file inputs
+            document.getElementById('floorImage').value = '';
+            document.getElementById('wallImage').value = '';
+            document.getElementById('roomImage').value = '';
+            
+            console.log("All textures have been reset");
+        }
+        
+        // Add furniture functions
+        function addTable() {
+            const tableGeometry = new THREE.BoxGeometry(1.5, 0.1, 1);
+            const tableMaterial = new THREE.MeshBasicMaterial({ color: 0x8B4513 });
+            const table = new THREE.Mesh(tableGeometry, tableMaterial);
+            table.position.set(0, 0.05, 0);
+            scene.add(table);
+            
+            // Add table legs
+            const legGeometry = new THREE.BoxGeometry(0.1, 0.4, 0.1);
+            const legPositions = [
+                [0.7, -0.2, 0.45],
+                [-0.7, -0.2, 0.45],
+                [0.7, -0.2, -0.45],
+                [-0.7, -0.2, -0.45]
+            ];
+            
+            legPositions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, tableMaterial);
+                leg.position.set(...pos);
+                scene.add(leg);
+            });
+            
+            console.log("Table added");
+        }
+        
+        function addChair() {
+            const chairMaterial = new THREE.MeshBasicMaterial({ color: 0x964B00 });
+            
+            // Chair seat
+            const seatGeometry = new THREE.BoxGeometry(0.5, 0.05, 0.5);
+            const seat = new THREE.Mesh(seatGeometry, chairMaterial);
+            seat.position.set(2, 0.025, 0);
+            scene.add(seat);
+            
+            // Chair back
+            const backGeometry = new THREE.BoxGeometry(0.5, 0.5, 0.05);
+            const back = new THREE.Mesh(backGeometry, chairMaterial);
+            back.position.set(2, 0.3, -0.225);
+            scene.add(back);
+            
+            console.log("Chair added");
+        }
+        
+        function addBed() {
+            const bedGeometry = new THREE.BoxGeometry(2, 0.3, 1.5);
+            const bedMaterial = new THREE.MeshBasicMaterial({ color: 0x4169E1 });
+            const bed = new THREE.Mesh(bedGeometry, bedMaterial);
+            bed.position.set(-2, 0.15, 0);
+            scene.add(bed);
+            
+            console.log("Bed added");
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        }
+        
+        // Handle window resize
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            init();
+            animate();
+            window.addEventListener('resize', onWindowResize);
+            
+            // Auto-create basic room
+            setTimeout(() => {
+                addWalls();
+                addFloor();
+                addTable();
+            }, 1000);
+        });
+
+        // product image passed from Flask
+const productTextureURL = "{{ product_image }}";
+
+// Apply product image button
+document.getElementById("use-product-image").addEventListener("click", () => {
+    if (!productTextureURL) {
+        alert("No product image received!");
+        return;
+    }
+    loadTextureFromURL(productTextureURL);
+});
+
+// Function: load product/floor texture
+function loadTextureFromURL(url) {
+    const loader = new THREE.TextureLoader();
+    loader.setCrossOrigin("anonymous");
+
+    loader.load(
+        url,
+        (texture) => {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(4, 4);  // adjust tiling as needed
+
+            floorMesh.material.map = texture;
+            floorMesh.material.needsUpdate = true;
+        }
+    );
+}
+
+    </script>
+</body>
+</html>

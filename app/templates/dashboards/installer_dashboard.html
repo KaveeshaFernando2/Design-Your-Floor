@@ -1,0 +1,362 @@
+{% extends "mason_layout_navbar.html" %}
+{% block content %}
+
+<!-- ===== Premium Industrial UI Styling ===== -->
+<style>
+
+/* --- Global Page Style --- */
+.dashboard-wrapper {
+    background: #f4f6f9;
+    padding: 50px 0;
+    min-height: 100vh;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Page Title */
+.dashboard-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #1f2d3d;
+    margin-bottom: 35px;
+    letter-spacing: -1px;
+}
+
+/* --- Dashboard Tiles --- */
+.dashboard-tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.tile {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 28px;
+    border-radius: 20px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: 0.4s ease;
+    position: relative;
+}
+
+.tile:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 45px rgba(0,0,0,0.12);
+}
+
+.tile h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #2c3e50;
+}
+
+/* --- Button Styles --- */
+.btn-red {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 12px;
+    transition: 0.25s ease;
+    box-shadow: 0 4px 15px rgba(231,76,60,0.25);
+}
+.btn-red:hover {
+    transform: translateY(-3px);
+}
+
+/* Small Buttons */
+.btn-small {
+    background: #33495e;
+    color: white;
+    border-radius: 7px;
+    padding: 7px 14px;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+.btn-small:hover { background: #1c2a35; }
+
+/* --- Section Cards --- */
+.section-card {
+    background: white;
+    padding: 35px;
+    border-radius: 18px;
+    margin-bottom: 40px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
+.section-card h3 {
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: #1f2d3d;
+}
+
+/* Inputs */
+.section-card input,
+.section-card textarea {
+    width: 100%;
+    padding: 14px;
+    border-radius: 10px;
+    border: 2px solid #e2e6ea;
+    background: #fdfdfd;
+    margin-bottom: 15px;
+    transition: 0.2s;
+}
+
+.section-card input:focus,
+.section-card textarea:focus {
+    border-color: #c0392b;
+    outline: none;
+}
+
+/* --- Gallery Grid --- */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+}
+
+.gallery-grid img {
+    width: 100%;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transition: 0.25s ease;
+}
+
+.gallery-grid img:hover {
+    transform: scale(1.06);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+}
+
+/* --- Styled Table --- */
+.styled-table {
+    width: 100%;
+    border-radius: 15px;
+    overflow: hidden;
+    border-collapse: collapse;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+.styled-table thead {
+    background: #2c3e50;
+    color: white;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 18px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.styled-table tbody tr:hover {
+    background: #f7f9fa;
+}
+
+/* Status colors */
+.text-success { color: #27ae60; font-weight: 600; }
+.text-danger { color: #e74c3c; font-weight: 600; }
+
+/* Preview Image */
+.preview-item img {
+    width: 160px;
+    height: 160px;
+    border-radius: 12px;
+    object-fit: cover;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    margin-top: 10px;
+}
+</style>
+
+<!-- ===== Dashboard Layout ===== -->
+<div class="dashboard-wrapper">
+<div class="container">
+
+<h2 class="dashboard-title">🔧 Installer Dashboard</h2>
+
+<!-- ===== Tiles Section ===== -->
+<div class="dashboard-tiles">
+
+    <!-- PROFILE TILE -->
+    <div class="tile">
+        <h3>👤 Profile</h3>
+        {% if installer.profile_image %}
+        <img src="{{ installer.profile_image }}" style="width:80px; height:80px; border-radius:15px; object-fit:cover; margin-bottom:12px;">
+        {% endif %}
+        <p><strong>Bio:</strong> {{ installer.bio or "Not updated" }}</p>
+        <p><strong>Completed Jobs:</strong> {{ completed_jobs_count }}</p>
+        <p><strong>Rating:</strong> {{ reviews|length }} Reviews</p>
+        <p><strong>Verified:</strong> {{ "Yes" if installer.verified else "No" }}</p>
+        <a class="btn-red" href="#profile-form">Edit Profile</a>
+    </div>
+
+    <!-- GALLERY TILE -->
+    <div class="tile">
+        <h3>🖼️ Gallery</h3>
+        <p>{{ installer.gallery|length }} uploaded</p>
+        <a class="btn-red" href="#gallery-form">Upload Photos</a>
+    </div>
+
+    <!-- BOOKINGS TILE -->
+    <div class="tile">
+        <h3>📅 Bookings</h3>
+        <p>{{ bookings|length }} pending</p>
+        <a class="btn-red" href="#bookings-table">Manage</a>
+    </div>
+
+    <!-- REVIEWS TILE -->
+    <div class="tile">
+        <h3>⭐ Reviews</h3>
+        <p>{{ reviews|length }} total</p>
+        <a class="btn-red" href="#reviews-section">View</a>
+    </div>
+
+</div>
+
+<!-- ===== Profile Form ===== -->
+<section id="profile-form" class="section-card">
+    <h3>📝 Update Profile</h3>
+
+    <form method="POST" action="{{ url_for('installer.update_profile') }}">
+        <textarea name="bio">{{ installer.bio or "" }}</textarea>
+        <button class="btn-red">Save Changes</button>
+    </form>
+
+    <hr style="margin: 35px 0;">
+
+    <h3>🖼️ Update Profile Image</h3>
+
+    <form method="POST" action="{{ url_for('installer.update_profile_image') }}" enctype="multipart/form-data">
+        {% if installer.profile_image %}
+        <img src="{{ installer.profile_image }}" style="width:150px; height:150px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
+        {% endif %}
+        <input type="file" name="profile_image" required>
+        <div id="profile-preview"></div>
+        <button class="btn-red" style="margin-top:10px;">Update Image</button>
+    </form>
+</section>
+
+<!-- ===== Gallery Upload ===== -->
+<section id="gallery-form" class="section-card">
+    <h3>🖼️ Upload Gallery Photo</h3>
+    <form method="POST" action="{{ url_for('installer.upload_photo') }}" enctype="multipart/form-data">
+        <input type="file" name="photo" required>
+        <div id="preview-container"></div>
+        <button class="btn-red">Upload</button>
+    </form>
+</section>
+
+<!-- ===== Gallery Display ===== -->
+<section class="section-card">
+    <h3>📸 My Gallery</h3>
+    {% if installer.gallery %}
+    <div class="gallery-grid">
+        {% for photo in installer.gallery %}
+        <img src="{{ photo.image_path }}">
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No images uploaded yet.</p>
+    {% endif %}
+</section>
+
+<!-- ===== Bookings Table ===== -->
+<section id="bookings-table" class="section-card">
+    <h3>📅 Bookings</h3>
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.id }}</td>
+                <td>{{ booking.customer.full_name }}</td>
+                <td>{{ booking.scheduled_date }}</td>
+                <td>{{ booking.status.replace('_', ' ').title() }}</td>
+
+                <td>
+                    {% if booking.status == 'requested' %}
+                        <a class="btn-small" href="{{ url_for('installer.update_booking', booking_id=booking.id, status='accepted') }}">Accept</a>
+                        <a class="btn-small" href="{{ url_for('installer.update_booking', booking_id=booking.id, status='cancelled') }}">Reject</a>
+
+                    {% elif booking.status == 'accepted' %}
+                        <a class="btn-small" href="{{ url_for('installer.update_booking', booking_id=booking.id, status='in_progress') }}">Start</a>
+                        <a class="btn-small" href="{{ url_for('installer.update_booking', booking_id=booking.id, status='cancelled') }}">Cancel</a>
+
+                    {% elif booking.status == 'in_progress' %}
+                        <a class="btn-small" href="{{ url_for('installer.update_booking', booking_id=booking.id, status='completed') }}">Complete</a>
+
+                    {% elif booking.status == 'completed' %}
+                        <span class="text-success">Completed</span>
+
+                    {% else %}
+                        <span class="text-danger">Cancelled</span>
+                    {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+
+    </table>
+</section>
+
+<!-- ===== Reviews ===== -->
+<section id="reviews-section" class="section-card">
+    <h3>⭐ Customer Reviews</h3>
+
+    {% for r in reviews %}
+        <p><strong>{{ r.rating }}/5</strong> — {{ r.comment }}</p>
+    {% else %}
+        <p>No reviews yet.</p>
+    {% endfor %}
+</section>
+
+</div>
+</div>
+
+<!-- === JS Preview === -->
+<script>
+document.getElementById('photo')?.addEventListener('change', (e)=>{
+    const preview = document.getElementById('preview-container');
+    preview.innerHTML = "";
+    const file = e.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = evt => preview.innerHTML =
+            `<div class='preview-item'><img src="${evt.target.result}"></div>`;
+        reader.readAsDataURL(file);
+    }
+});
+
+document.getElementById('profile_image')?.addEventListener('change', (e)=>{
+    const preview = document.getElementById('profile-preview');
+    preview.innerHTML = "";
+    const file = e.target.files[0];
+    if(file){
+        const reader = new FileReader();
+        reader.onload = evt => preview.innerHTML =
+            `<div class='preview-item'><img src="${evt.target.result}"></div>`;
+        reader.readAsDataURL(file);
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,1279 @@
+{% extends 'layout_navbar.html' %}
+{% block title %}Gallery - Design Your Floor{% endblock %}
+
+{% block content %}
+<style>
+    /* ---------- VARIABLES ---------- */
+    :root {
+        --primary: #2c3e50;
+        --secondary: #e74c3c;
+        --accent: #3498db;
+        --light: #f8f9fa;
+        --dark: #1a1a2e;
+        --gray: #6c757d;
+        --light-gray: #e9ecef;
+        --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    /* ---------- GALLERY HERO ---------- */
+    .gallery-hero {
+        background: linear-gradient(rgba(44, 62, 80, 0.9), rgba(44, 62, 80, 0.9)),
+                    url('/static/images/gallery-banner.jpg') center/cover no-repeat;
+        color: white;
+        padding: 120px 0 80px;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .gallery-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, transparent 60%, rgba(231, 76, 60, 0.1));
+        z-index: 1;
+    }
+
+    .gallery-content {
+        position: relative;
+        z-index: 2;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .gallery-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(231, 76, 60, 0.2);
+        color: #ff6b6b;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+    }
+
+    .gallery-title {
+        font-size: 4rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 25px;
+        background: linear-gradient(135deg, #fff 0%, #ff6b6b 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .gallery-subtitle {
+        font-size: 1.3rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.9);
+        max-width: 800px;
+        margin: 0 auto 40px;
+        font-weight: 300;
+    }
+
+    /* ---------- GALLERY FILTER ---------- */
+    .gallery-filter {
+        padding: 60px 0 40px;
+        background: var(--light);
+    }
+
+    .filter-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .filter-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+        margin-bottom: 30px;
+    }
+
+    .filter-tab {
+        padding: 12px 28px;
+        background: white;
+        border: 2px solid var(--light-gray);
+        border-radius: 10px;
+        font-weight: 600;
+        color: var(--gray);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .filter-tab:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        transform: translateY(-2px);
+    }
+
+    .filter-tab.active {
+        background: var(--secondary);
+        border-color: var(--secondary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .search-box {
+        max-width: 500px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 16px 20px 16px 50px;
+        border: 2px solid var(--light-gray);
+        border-radius: 12px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+        background: white;
+        color: var(--dark);
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(52, 152, 219, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--gray);
+        font-size: 18px;
+    }
+
+    /* ---------- GALLERY GRID ---------- */
+    .gallery-grid-section {
+        padding: 60px 0 100px;
+        background: white;
+    }
+
+    .gallery-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    /* ---------- GALLERY ITEM ---------- */
+    .gallery-item {
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: white;
+        position: relative;
+        cursor: pointer;
+        height: 350px;
+    }
+
+    .gallery-item:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+    }
+
+    .gallery-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .gallery-item:hover .gallery-image {
+        transform: scale(1.05);
+    }
+
+    .gallery-overlay-content {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0,0,0,0.8));
+        padding: 30px 25px 25px;
+        color: white;
+        transform: translateY(100px);
+        transition: transform 0.4s ease;
+    }
+
+    .gallery-item:hover .gallery-overlay-content {
+        transform: translateY(0);
+    }
+
+    .gallery-category {
+        display: inline-block;
+        background: var(--secondary);
+        color: white;
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .gallery-title-small {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        line-height: 1.3;
+    }
+
+    .gallery-description {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        margin-bottom: 15px;
+        line-height: 1.5;
+    }
+
+    .gallery-meta {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 0.85rem;
+        opacity: 0.8;
+    }
+
+    .gallery-meta i {
+        margin-right: 5px;
+    }
+
+    /* ---------- LIGHTBOX MODAL ---------- */
+    .lightbox-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 1000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        backdrop-filter: blur(10px);
+    }
+
+    .lightbox-modal.active {
+        display: flex;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .lightbox-content {
+        max-width: 90%;
+        max-height: 90%;
+        position: relative;
+        animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .lightbox-image {
+        max-width: 100%;
+        max-height: 80vh;
+        border-radius: 10px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .lightbox-info {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 10px;
+        padding: 25px;
+        margin-top: 20px;
+        max-width: 800px;
+        margin: 20px auto 0;
+    }
+
+    .lightbox-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 10px;
+    }
+
+    .lightbox-description {
+        color: var(--gray);
+        line-height: 1.6;
+        margin-bottom: 15px;
+    }
+
+    .lightbox-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .detail-item i {
+        color: var(--secondary);
+        font-size: 18px;
+        width: 24px;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--dark);
+        margin-right: 5px;
+    }
+
+    .detail-value {
+        color: var(--gray);
+    }
+
+    .lightbox-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+
+    .lightbox-close:hover {
+        background: var(--secondary);
+        transform: rotate(90deg);
+    }
+
+    .lightbox-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+
+    .lightbox-nav:hover {
+        background: var(--secondary);
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    .lightbox-prev {
+        left: 20px;
+    }
+
+    .lightbox-next {
+        right: 20px;
+    }
+
+    /* ---------- PROJECT SHOWCASE ---------- */
+    .projects-section {
+        padding: 100px 0;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .projects-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .projects-header {
+        text-align: center;
+        max-width: 800px;
+        margin: 0 auto 60px;
+    }
+
+    .projects-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 20px;
+        line-height: 1.2;
+    }
+
+    .projects-title span {
+        color: var(--secondary);
+        position: relative;
+    }
+
+    .projects-description {
+        font-size: 1.2rem;
+        color: var(--gray);
+        line-height: 1.8;
+    }
+
+    .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 40px;
+        margin-top: 50px;
+    }
+
+    .project-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+
+    .project-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 60px rgba(0,0,0,0.15);
+    }
+
+    .project-image {
+        width: 100%;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    .project-content {
+        padding: 30px;
+    }
+
+    .project-category {
+        display: inline-block;
+        background: var(--light-gray);
+        color: var(--secondary);
+        padding: 6px 15px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 15px;
+    }
+
+    .project-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+
+    .project-details {
+        color: var(--gray);
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .project-stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 20px;
+        border-top: 1px solid var(--light-gray);
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--secondary);
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+        margin-top: 5px;
+    }
+
+    /* ---------- CTA SECTION ---------- */
+    .gallery-cta {
+        padding: 100px 0;
+        background: linear-gradient(135deg, var(--primary), #1a252f);
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 0 20px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .cta-title {
+        font-size: 3rem;
+        font-weight: 800;
+        margin-bottom: 25px;
+        line-height: 1.2;
+    }
+
+    .cta-description {
+        font-size: 1.3rem;
+        color: rgba(255,255,255,0.9);
+        line-height: 1.7;
+        margin-bottom: 40px;
+    }
+
+    .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 40px;
+        flex-wrap: wrap;
+    }
+
+    .cta-button {
+        padding: 18px 40px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 12px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .cta-button.primary {
+        background: var(--gradient);
+        color: white;
+    }
+
+    .cta-button.secondary {
+        background: transparent;
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .cta-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    }
+
+    .cta-button.secondary:hover {
+        background: rgba(255,255,255,0.1);
+        border-color: white;
+    }
+
+    /* ---------- RESPONSIVE DESIGN ---------- */
+    @media (max-width: 1200px) {
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+    }
+
+    @media (max-width: 992px) {
+        .gallery-title {
+            font-size: 3.5rem;
+        }
+        
+        .projects-title {
+            font-size: 2.5rem;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .gallery-item {
+            height: 300px;
+        }
+        
+        .cta-title {
+            font-size: 2.5rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .gallery-hero {
+            padding: 80px 0 60px;
+        }
+        
+        .gallery-title {
+            font-size: 2.8rem;
+        }
+        
+        .gallery-subtitle {
+            font-size: 1.1rem;
+        }
+        
+        .filter-tabs {
+            justify-content: flex-start;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        
+        .gallery-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .gallery-item {
+            height: 350px;
+        }
+        
+        .lightbox-content {
+            max-width: 95%;
+            max-height: 95%;
+        }
+        
+        .lightbox-nav {
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+        }
+        
+        .projects-grid {
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+        
+        .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .cta-button {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .gallery-title {
+            font-size: 2.2rem;
+        }
+        
+        .gallery-badge {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .filter-tab {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        
+        .gallery-overlay-content {
+            padding: 20px 15px 15px;
+        }
+        
+        .gallery-title-small {
+            font-size: 1.2rem;
+        }
+        
+        .projects-title {
+            font-size: 2rem;
+        }
+        
+        .cta-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="gallery-page">
+    <!-- Hero Section -->
+    <section class="gallery-hero">
+        <div class="gallery-overlay"></div>
+        <div class="gallery-content">
+            <div class="gallery-badge">
+                <i class="fas fa-images"></i>
+                Tile Design Portfolio
+            </div>
+            
+            <h1 class="gallery-title">Our Tile Gallery</h1>
+            
+            <p class="gallery-subtitle">
+                Explore our collection of premium tile installations, designs, and completed projects. 
+                Get inspired for your next renovation or construction project.
+            </p>
+        </div>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="gallery-filter">
+        <div class="filter-container">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-filter="all">
+                    <i class="fas fa-th"></i> All Projects
+                </button>
+                <button class="filter-tab" data-filter="residential">
+                    <i class="fas fa-home"></i> Residential
+                </button>
+                <button class="filter-tab" data-filter="commercial">
+                    <i class="fas fa-building"></i> Commercial
+                </button>
+                <button class="filter-tab" data-filter="kitchen">
+                    <i class="fas fa-utensils"></i> Kitchen
+                </button>
+                <button class="filter-tab" data-filter="bathroom">
+                    <i class="fas fa-bath"></i> Bathroom
+                </button>
+                <button class="filter-tab" data-filter="floor">
+                    <i class="fas fa-square"></i> Floor Tiles
+                </button>
+                <button class="filter-tab" data-filter="wall">
+                    <i class="fas fa-border-style"></i> Wall Tiles
+                </button>
+                <button class="filter-tab" data-filter="outdoor">
+                    <i class="fas fa-tree"></i> Outdoor
+                </button>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" class="search-input" id="gallerySearch" placeholder="Search for specific tile designs or patterns...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Grid -->
+    <section class="gallery-grid-section">
+        <div class="gallery-container">
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- Gallery items will be populated by JavaScript -->
+                <!-- Template item structure:
+                <div class="gallery-item" data-category="residential" data-title="Modern Kitchen Tiles">
+                    <img src="/static/images/gallery/kitchen1.jpg" alt="Modern Kitchen" class="gallery-image">
+                    <div class="gallery-overlay-content">
+                        <span class="gallery-category">Kitchen</span>
+                        <h3 class="gallery-title-small">Modern Kitchen Tiles</h3>
+                        <p class="gallery-description">Porcelain tiles with matte finish</p>
+                        <div class="gallery-meta">
+                            <span><i class="fas fa-calendar"></i> 2024</span>
+                            <span><i class="fas fa-map-marker-alt"></i> Colombo</span>
+                        </div>
+                    </div>
+                </div>
+                -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Showcase -->
+    <section class="projects-section">
+        <div class="projects-container">
+            <div class="projects-header">
+                <h2 class="projects-title">Featured <span>Projects</span></h2>
+                <p class="projects-description">
+                    A showcase of our most impressive tile installations and design projects 
+                    completed for satisfied clients across Sri Lanka.
+                </p>
+            </div>
+            
+            <div class="projects-grid">
+                <!-- Project 1 -->
+                <div class="project-card">
+                    <img src="/static/images/projects/luxury-villa.jpg" alt="Luxury Villa" class="project-image">
+                    <div class="project-content">
+                        <span class="project-category">Residential</span>
+                        <h3 class="project-name">Luxury Villa Flooring</h3>
+                        <p class="project-details">
+                            Complete floor tiling for a 5-bedroom luxury villa using 
+                            imported Italian marble tiles with intricate patterns.
+                        </p>
+                        <div class="project-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">2,500</div>
+                                <div class="stat-label">Sq. Feet</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">45</div>
+                                <div class="stat-label">Days</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">A+</div>
+                                <div class="stat-label">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 2 -->
+                <div class="project-card">
+                    <img src="/static/images/projects/hotel-lobby.jpg" alt="Hotel Lobby" class="project-image">
+                    <div class="project-content">
+                        <span class="project-category">Commercial</span>
+                        <h3 class="project-name">5-Star Hotel Lobby</h3>
+                        <p class="project-details">
+                            Grand lobby tiling project featuring custom-designed 
+                            mosaic patterns and premium granite flooring.
+                        </p>
+                        <div class="project-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">5,000</div>
+                                <div class="stat-label">Sq. Feet</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">60</div>
+                                <div class="stat-label">Days</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">A+</div>
+                                <div class="stat-label">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project 3 -->
+                <div class="project-card">
+                    <img src="/static/images/projects/office-space.jpg" alt="Office Space" class="project-image">
+                    <div class="project-content">
+                        <span class="project-category">Office</span>
+                        <h3 class="project-name">Corporate Office Complex</h3>
+                        <p class="project-details">
+                            Modern office flooring with anti-slip ceramic tiles 
+                            and coordinated wall tiling for reception areas.
+                        </p>
+                        <div class="project-stats">
+                            <div class="stat-item">
+                                <div class="stat-number">8,000</div>
+                                <div class="stat-label">Sq. Feet</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">30</div>
+                                <div class="stat-label">Days</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">A+</div>
+                                <div class="stat-label">Rating</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="gallery-cta">
+        <div class="cta-container">
+            <h2 class="cta-title">Inspired by Our Work?</h2>
+            <p class="cta-description">
+                Let us transform your space with our premium tile solutions. 
+                Contact us for a free consultation and quote based on your specific requirements.
+            </p>
+            
+            <div class="cta-buttons">
+                <a href="#" class="cta-button primary">
+                    <i class="fas fa-calculator"></i>
+                    Get Free Quote
+                </a>
+                <a href="#" class="cta-button secondary">
+                    <i class="fas fa-phone-alt"></i>
+                    Schedule Consultation
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox-modal" id="lightboxModal">
+        <button class="lightbox-close" id="lightboxClose">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <button class="lightbox-nav lightbox-prev" id="lightboxPrev">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        
+        <button class="lightbox-nav lightbox-next" id="lightboxNext">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        
+        <div class="lightbox-content">
+            <img src="" alt="" class="lightbox-image" id="lightboxImage">
+            <div class="lightbox-info" id="lightboxInfo">
+                <!-- Lightbox info will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Gallery Data
+    const galleryItems = [
+        {
+            id: 1,
+            image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "kitchen",
+            title: "Modern Kitchen Backsplash",
+            description: "White subway tiles with dark grout for contemporary kitchen",
+            date: "2024",
+            location: "Colombo",
+            tileType: "Ceramic",
+            area: "45 sq.ft",
+            pattern: "Brick Bond"
+        },
+        {
+            id: 2,
+            image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "bathroom",
+            title: "Luxury Bathroom Tiles",
+            description: "Large format marble-look porcelain tiles",
+            date: "2024",
+            location: "Kandy",
+            tileType: "Porcelain",
+            area: "120 sq.ft",
+            pattern: "Large Format"
+        },
+        {
+            id: 3,
+            image: "https://images.unsplash.com/photo-1564078516393-cf04bd966897?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "floor",
+            title: "Living Room Wood-look Tiles",
+            description: "Wood-effect ceramic tiles for warm interior",
+            date: "2023",
+            location: "Galle",
+            tileType: "Ceramic",
+            area: "350 sq.ft",
+            pattern: "Plank"
+        },
+        {
+            id: 4,
+            image: "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "outdoor",
+            title: "Patio Stone Tiles",
+            description: "Natural stone tiles for outdoor living area",
+            date: "2023",
+            location: "Negombo",
+            tileType: "Natural Stone",
+            area: "200 sq.ft",
+            pattern: "Random Ashlar"
+        },
+        {
+            id: 5,
+            image: "https://www.novoceram.com/wp-content/uploads/sites/4/2020/02/Tiber-Light-60x60-outplus-restaurant.jpg",
+            category: "commercial",
+            title: "Restaurant Floor Tiles",
+            description: "Anti-slip commercial grade tiles",
+            date: "2024",
+            location: "Colombo",
+            tileType: "Vitrified",
+            area: "800 sq.ft",
+            pattern: "Chequerboard"
+        },
+        {
+            id: 6,
+            image: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "residential",
+            title: "Entrance Foyer Tiles",
+            description: "Patterned cement tiles for grand entrance",
+            date: "2024",
+            location: "Nuwara Eliya",
+            tileType: "Cement Tiles",
+            area: "85 sq.ft",
+            pattern: "Geometric"
+        },
+        {
+            id: 7,
+            image: "https://images.unsplash.com/photo-1599809275671-b5942cabc7a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "wall",
+            title: "Accent Wall Mosaic",
+            description: "Glass mosaic feature wall in living room",
+            date: "2023",
+            location: "Colombo",
+            tileType: "Glass Mosaic",
+            area: "60 sq.ft",
+            pattern: "Abstract"
+        },
+        {
+            id: 8,
+            image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "bathroom",
+            title: "Spa Bathroom Tiles",
+            description: "Large format tiles with minimal grout lines",
+            date: "2024",
+            location: "Mount Lavinia",
+            tileType: "Porcelain",
+            area: "150 sq.ft",
+            pattern: "Stack Bond"
+        },
+        {
+            id: 9,
+            image: "https://images.unsplash.com/photo-1613977257363-707ba9348227?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "kitchen",
+            title: "Kitchen Floor Tiles",
+            description: "Hexagon pattern tiles for kitchen floor",
+            date: "2023",
+            location: "Kurunegala",
+            tileType: "Ceramic",
+            area: "180 sq.ft",
+            pattern: "Hexagon"
+        },
+        {
+            id: 10,
+            image: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "commercial",
+            title: "Office Reception Floor",
+            description: "Modern geometric pattern for corporate space",
+            date: "2024",
+            location: "Colombo",
+            tileType: "Porcelain",
+            area: "400 sq.ft",
+            pattern: "Geometric"
+        },
+        {
+            id: 11,
+            image: "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "outdoor",
+            title: "Pool Deck Tiles",
+            description: "Non-slip outdoor tiles around swimming pool",
+            date: "2023",
+            location: "Bentota",
+            tileType: "Outdoor Porcelain",
+            area: "300 sq.ft",
+            pattern: "Wood Look"
+        },
+        {
+            id: 12,
+            image: "https://images.unsplash.com/photo-1560185007-5f0bb1866cab?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+            category: "residential",
+            title: "Master Bedroom Floor",
+            description: "Warm toned tiles for cozy bedroom",
+            date: "2024",
+            location: "Colombo",
+            tileType: "Ceramic",
+            area: "220 sq.ft",
+            pattern: "Diagonal"
+        }
+    ];
+
+    // State variables
+    let currentFilter = 'all';
+    let currentSearch = '';
+    let currentLightboxIndex = 0;
+    let filteredItems = [...galleryItems];
+
+    // DOM Elements
+    const galleryGrid = document.getElementById('galleryGrid');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const searchInput = document.getElementById('gallerySearch');
+    const lightboxModal = document.getElementById('lightboxModal');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxInfo = document.getElementById('lightboxInfo');
+    const lightboxClose = document.getElementById('lightboxClose');
+    const lightboxPrev = document.getElementById('lightboxPrev');
+    const lightboxNext = document.getElementById('lightboxNext');
+
+    // Initialize gallery
+    document.addEventListener('DOMContentLoaded', function() {
+        renderGallery();
+        setupEventListeners();
+        setupLightboxNavigation();
+    });
+
+    // Render gallery items
+    function renderGallery() {
+        galleryGrid.innerHTML = '';
+        
+        filteredItems.forEach((item, index) => {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item fade-in';
+            galleryItem.dataset.category = item.category;
+            galleryItem.dataset.index = index;
+            
+            galleryItem.innerHTML = `
+                <img src="${item.image}" alt="${item.title}" class="gallery-image" loading="lazy">
+                <div class="gallery-overlay-content">
+                    <span class="gallery-category">${item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+                    <h3 class="gallery-title-small">${item.title}</h3>
+                    <p class="gallery-description">${item.description}</p>
+                    <div class="gallery-meta">
+                        <span><i class="fas fa-calendar"></i> ${item.date}</span>
+                        <span><i class="fas fa-map-marker-alt"></i> ${item.location}</span>
+                    </div>
+                </div>
+            `;
+            
+            galleryItem.addEventListener('click', () => openLightbox(index));
+            galleryGrid.appendChild(galleryItem);
+        });
+    }
+
+    // Filter gallery items
+    function filterGallery() {
+        filteredItems = galleryItems.filter(item => {
+            const matchesFilter = currentFilter === 'all' || item.category === currentFilter;
+            const matchesSearch = currentSearch === '' || 
+                item.title.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                item.description.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                item.category.toLowerCase().includes(currentSearch.toLowerCase());
+            
+            return matchesFilter && matchesSearch;
+        });
+        
+        renderGallery();
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+        // Filter tabs
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                filterTabs.forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                filterGallery();
+            });
+        });
+
+        // Search input
+        searchInput.addEventListener('input', function() {
+            currentSearch = this.value;
+            filterGallery();
+        });
+
+        // Lightbox close
+        lightboxClose.addEventListener('click', closeLightbox);
+        
+        // Close lightbox on ESC key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') navigateLightbox(-1);
+            if (e.key === 'ArrowRight') navigateLightbox(1);
+        });
+        
+        // Close lightbox on background click
+        lightboxModal.addEventListener('click', function(e) {
+            if (e.target === this) closeLightbox();
+        });
+    }
+
+    // Setup lightbox navigation
+    function setupLightboxNavigation() {
+        lightboxPrev.addEventListener('click', () => navigateLightbox(-1));
+        lightboxNext.addEventListener('click', () => navigateLightbox(1));
+    }
+
+    // Open lightbox
+    function openLightbox(index) {
+        currentLightboxIndex = index;
+        const item = filteredItems[index];
+        
+        lightboxImage.src = item.image;
+        lightboxImage.alt = item.title;
+        
+        lightboxInfo.innerHTML = `
+            <h3 class="lightbox-title">${item.title}</h3>
+            <p class="lightbox-description">${item.description}</p>
+            <div class="lightbox-details">
+                <div class="detail-item">
+                    <i class="fas fa-tag"></i>
+                    <span class="detail-label">Category:</span>
+                    <span class="detail-value">${item.category.charAt(0).toUpperCase() + item.category.slice(1)}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-calendar"></i>
+                    <span class="detail-label">Year:</span>
+                    <span class="detail-value">${item.date}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span class="detail-label">Location:</span>
+                    <span class="detail-value">${item.location}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-th-large"></i>
+                    <span class="detail-label">Tile Type:</span>
+                    <span class="detail-value">${item.tileType}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-ruler-combined"></i>
+                    <span class="detail-label">Area:</span>
+                    <span class="detail-value">${item.area}</span>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-border-style"></i>
+                    <span class="detail-label">Pattern:</span>
+                    <span class="detail-value">${item.pattern}</span>
+                </div>
+            </div>
+        `;
+        
+        lightboxModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // Close lightbox
+    function closeLightbox() {
+        lightboxModal.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+
+    // Navigate lightbox
+    function navigateLightbox(direction) {
+        const newIndex = currentLightboxIndex + direction;
+        
+        if (newIndex >= 0 && newIndex < filteredItems.length) {
+            openLightbox(newIndex);
+        }
+    }
+
+    // Add CSS for fade-in animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease forwards;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends "supplier_layout_navbar.html" %}
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2 class="fw-bold text-primary m-0">🚚 Orders Assigned to Delivery</h2>
+    </div>
+
+    <!-- Delivery Orders Card -->
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center mb-0 custom-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Total</th>
+                            <th>Delivery Person</th>
+                            <th>Status</th>
+                            <th>Address</th>
+                            <th>Items</th>
+                            <th>Timeline</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <!-- Order ID -->
+                            <td class="fw-bold">#{{ order.id }}</td>
+
+                            <!-- Total -->
+                            <td class="text-success fw-semibold">Rs. {{ order.total }}</td>
+
+                            <!-- Delivery Person -->
+                            <td>
+                                {% if order.delivery_person %}
+                                    <strong>{{ order.delivery_person.full_name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ order.delivery_person.email }}</small>
+                                {% else %}
+                                    <span class="badge bg-secondary px-3 py-2 rounded-pill">Not Assigned</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Status Badge -->
+                            <td>
+                                <span class="badge 
+                                    {% if order.delivery_status == 'delivered' %} bg-success
+                                    {% elif order.delivery_status == 'out_for_delivery' %} bg-warning text-dark
+                                    {% elif order.delivery_status == 'failed' %} bg-danger
+                                    {% else %} bg-secondary
+                                    {% endif %}
+                                px-3 py-2 rounded-pill">
+                                    {{ order.delivery_status | replace('_',' ') | title }}
+                                </span>
+                            </td>
+
+                            <!-- Address -->
+                            <td class="text-muted">{{ order.delivery_address }}</td>
+
+                            <!-- Items List -->
+                            <td class="text-start">
+                                <ul class="small m-0">
+                                {% for item in order.items %}
+                                    <li>{{ item.product.name }} x {{ item.quantity }}</li>
+                                {% endfor %}
+                                </ul>
+                            </td>
+
+                            <!-- Timeline -->
+                            <td class="text-start">
+                                <div class="timeline-status">
+                                    <div>
+                                        <span class="badge bg-primary">Assigned</span>
+                                        <br>
+                                        <small>{{ order.delivery_assigned_at.strftime("%Y-%m-%d %H:%M") if order.delivery_assigned_at else "-" }}</small>
+                                    </div>
+
+                                    <div class="mt-2">
+                                        <span class="badge bg-success">Completed</span>
+                                        <br>
+                                        <small>{{ order.delivery_completed_at.strftime("%Y-%m-%d %H:%M") if order.delivery_completed_at else "-" }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ✅ Custom Styles -->
+<style>
+/* Table Header */
+.custom-table thead {
+    background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+    color: white;
+}
+
+/* Zebra Rows */
+.custom-table tbody tr:nth-child(odd) { background-color: #f8faff; }
+.custom-table tbody tr:nth-child(even) { background-color: #eef4ff; }
+
+/* Hover */
+.custom-table tbody tr:hover {
+    background-color: #dce9ff !important;
+    transition: 0.2s;
+}
+
+/* Timeline Badges Layout */
+.timeline-status {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Card Styling */
+.card {
+    border-radius: 14px;
+    overflow: hidden;
+}
+</style>
+
+{% endblock %}

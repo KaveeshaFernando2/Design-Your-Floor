@@ -1,0 +1,202 @@
+{% extends "supplier_layout_navbar.html" %}
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2 class="fw-bold text-primary m-0">📦 Orders for Your Products</h2>
+
+        <a href="{{ url_for('supplier.delivery_orders') }}" 
+           class="btn view-orders-btn shadow-sm px-4 py-2">
+           <i class="fas fa-truck me-2"></i> View Delivery Orders
+        </a>
+    </div><br>
+
+    <!-- ✅ Search + Filter Bar -->
+    <div class="card shadow-sm border-0 mb-4 p-3">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <input id="searchInput" type="text" class="form-control" placeholder="🔍 Search Order ID or Address">
+            </div>
+
+            <div class="col-md-6">
+                <select id="statusFilter" class="form-select">
+                    <option value="">Filter by Status</option>
+                    <option value="assigned">Assigned</option>
+                    <option value="out_for_delivery">Out For Delivery</option>
+                    <option value="delivered">Delivered</option>
+                    <option value="failed">Failed</option>
+                    <option value="returned">Returned</option>
+                </select>
+                
+            </div>
+        </div>
+    </div><br>
+
+    <!-- Orders Card -->
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center mb-0 custom-table" id="ordersTable">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Total</th>
+                            <th>Delivery Status</th>
+                            <th>Address</th>
+                            <th>Items</th>
+                            <th>Assign Delivery</th>
+                            <th>Update Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for order in orders %}
+                        <tr data-status="{{ order.delivery_status }}" 
+                            data-search="{{ order.id }} {{ order.delivery_address }}">
+
+                            <td class="fw-bold">#{{ order.id }}</td>
+
+                            <td class="text-success fw-semibold">Rs. {{ order.total }}</td>
+
+                            <!-- ✅ GREEN Delivered Badge -->
+                            <td>
+                                <span class="badge 
+                                    {% if order.delivery_status == 'delivered' %} bg-success delivered-badge
+                                    {% elif order.delivery_status == 'out_for_delivery' %} bg-warning text-dark
+                                    {% elif order.delivery_status == 'failed' %} bg-danger
+                                    {% else %} bg-secondary
+                                    {% endif %}
+                                px-3 py-2 rounded-pill">
+                                    {{ order.delivery_status | replace('_', ' ') | title }}
+                                </span>
+                            </td>
+
+                            <td class="text-muted">{{ order.delivery_address }}</td>
+
+                            <td class="text-start">
+                                <ul class="small m-0">
+                                {% for item in order.items %}
+                                    <li>{{ item.product.name }} x {{ item.quantity }}</li>
+                                {% endfor %}
+                                </ul>
+                            </td>
+
+                            <!-- Assign Delivery -->
+                            <td style="min-width: 180px;">
+                                <form action="{{ url_for('supplier.assign_delivery', order_id=order.id) }}" method="POST" class="d-flex gap-2">
+                                    <select name="delivery_person" class="form-select form-select-sm select-colored" required>
+                                        <option value="">Select...</option>
+                                        {% for user in users %}
+                                            <option value="{{ user.id }}">{{ user.full_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button class="btn btn-assign btn-sm">Assign</button>
+                                </form>
+                            </td>
+
+                            <!-- Update Status -->
+                            <td style="min-width: 180px;">
+                                <form action="{{ url_for('supplier.update_delivery', order_id=order.id) }}" method="POST" class="d-flex gap-2">
+                                    <select name="status" class="form-select form-select-sm select-colored">
+                                        <option value="assigned">Assigned</option>
+                                        <option value="out_for_delivery">Out For Delivery</option>
+                                        <option value="delivered">Delivered</option>
+                                        <option value="failed">Failed</option>
+                                        <option value="returned">Returned</option>
+                                    </select>
+                                    <button class="btn btn-update btn-sm">Update</button>
+                                </form>
+                            </td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Custom Styles -->
+<style>
+/* Table Header */
+.custom-table thead {
+    background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+    color: white;
+}
+
+/* Zebra Rows */
+.custom-table tbody tr:nth-child(odd) { background-color: #f8faff; }
+.custom-table tbody tr:nth-child(even) { background-color: #eef4ff; }
+
+/* Hover */
+.custom-table tbody tr:hover {
+    background-color: #dce9ff !important;
+    transition: 0.2s;
+}
+
+/* ✅ Delivered Bright Green */
+.delivered-badge {
+    background-color: #1dbf41 !important;
+}
+
+/* Colored Select */
+.select-colored {
+    border: 1px solid #0d6efd;
+    background-color: #f0f7ff;
+}
+
+/* Buttons */
+.btn-assign {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+}
+.btn-assign:hover { background-color: #084dbf; }
+
+.btn-update {
+    background-color: #28a745;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+}
+.btn-update:hover { background-color: #1e7e34; }
+
+/* ✅ Rounded Pill Button */
+.view-orders-btn {
+    background: #0dcaf0;
+    color: white;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: 0.2s;
+}
+.view-orders-btn:hover {
+    background: #0bb0d3;
+}
+</style>
+
+<!-- ✅ Live Search + Filter Script -->
+<script>
+const rows = document.querySelectorAll("#ordersTable tbody tr");
+
+document.getElementById("searchInput").addEventListener("keyup", function() {
+    const value = this.value.toLowerCase();
+    rows.forEach(row => {
+        row.style.display = row.dataset.search.toLowerCase().includes(value) ? "" : "none";
+    });
+});
+
+document.getElementById("statusFilter").addEventListener("change", function() {
+    const value = this.value;
+    rows.forEach(row => {
+        row.style.display = !value || row.dataset.status === value ? "" : "none";
+    });
+});
+</script>
+
+{% endblock %}

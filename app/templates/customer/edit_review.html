@@ -1,0 +1,296 @@
+{% extends "customer_layout_navbar.html" %}
+{% block content %}
+
+<style>
+/* ===== Industrial Review Container ===== */
+.review-container {
+    background: linear-gradient(rgba(102, 126, 234, 0.85), rgba(118, 75, 162, 0.85)),
+                url('https://www.decorpot.com/images/blogimage1398192958shiny-design-tiles-for-hall.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    padding: 60px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.review-card {
+    background: white;
+    border-radius: 25px;
+    padding: 50px 40px;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.15);
+    max-width: 650px;
+    width: 90%;
+    position: relative;
+    overflow: hidden;
+}
+
+.review-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: linear-gradient(90deg, #e74c3c, #3498db, #e74c3c);
+}
+
+/* Header Section */
+.review-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.review-header h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #2c3e50, #e74c3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 15px;
+}
+
+/* Rating Section */
+.rating-section {
+    margin-bottom: 35px;
+}
+
+.rating-label {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: block;
+}
+
+.star-rating {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.star {
+    font-size: 3rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #e0e0e0;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.star.selected {
+    color: #ffd700;
+    transform: scale(1.1);
+}
+
+.rating-text {
+    text-align: center;
+    font-weight: 600;
+    color: #6c757d;
+    margin-top: 10px;
+    min-height: 24px;
+}
+
+/* Comment Section */
+.comment-section {
+    margin-bottom: 35px;
+}
+
+.comment-label {
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+    display: block;
+}
+
+.comment-textarea {
+    width: 100%;
+    padding: 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 150px;
+    transition: .3s ease;
+    background: #f8f9fa;
+}
+
+.comment-textarea:focus {
+    border-color: #3498db;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.char-count {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #6c757d;
+    margin-top: 8px;
+}
+
+/* Submit & Cancel Buttons */
+.submit-btn {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: none;
+    padding: 18px 45px;
+    border-radius: 15px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    width: 100%;
+    transition: .3s ease;
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+}
+
+.submit-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 35px rgba(231, 76, 60, 0.4);
+}
+
+.cancel-btn {
+    display: block;
+    margin-top: 15px;
+    background: #333;
+    color: white;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    border-radius: 12px;
+    text-align: center;
+    transition: .3s ease;
+}
+
+.cancel-btn:hover {
+    background: #000;
+}
+
+/* Preview Box */
+.review-preview {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    margin-top: 25px;
+    text-align: center;
+    display: none;
+}
+
+.preview-rating {
+    font-size: 2rem;
+}
+
+.preview-comment {
+    font-style: italic;
+    margin-top: 8px;
+}
+</style>
+
+
+<div class="review-container">
+    <div class="review-card">
+
+        <div class="review-header">
+            <h2>✏️ Edit Your Review</h2>
+        </div>
+
+        <form method="POST">
+
+            <!-- Rating Section -->
+            <div class="rating-section">
+                <label class="rating-label">Update Your Rating</label>
+                <div class="star-rating" id="starRating">
+                    {% for r in range(1, 6) %}
+                        <div class="star {% if review.rating >= r %}selected{% endif %}" data-rating="{{ r }}">⭐</div>
+                    {% endfor %}
+                </div>
+                <div class="rating-text" id="ratingText">
+                    {{ review.rating }}/5 selected
+                </div>
+
+                <input type="hidden" name="rating" id="ratingInput" value="{{ review.rating }}" required>
+            </div>
+
+            <!-- Comment Section -->
+            <div class="comment-section">
+                <label class="comment-label">Update Your Comment</label>
+                <textarea name="comment"
+                          class="comment-textarea"
+                          maxlength="500"
+                          required>{{ review.comment }}</textarea>
+
+                <div class="char-count">
+                    <span id="charCount">{{ review.comment|length }}</span>/500
+                </div>
+            </div>
+
+            <!-- Preview -->
+            <div class="review-preview" id="reviewPreview">
+                <div class="preview-rating"></div>
+                <p class="preview-comment"></p>
+            </div>
+
+            <!-- Buttons -->
+            <button class="submit-btn">💾 Save Changes</button>
+
+            <a href="{{ url_for('customer.my_reviews') }}" class="cancel-btn">Cancel</a>
+
+        </form>
+
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const stars = document.querySelectorAll(".star");
+    const ratingInput = document.getElementById("ratingInput");
+    const ratingText = document.getElementById("ratingText");
+    const commentBox = document.querySelector(".comment-textarea");
+    const charCount = document.getElementById("charCount");
+    const preview = document.getElementById("reviewPreview");
+    const previewRating = document.querySelector(".preview-rating");
+    const previewComment = document.querySelector(".preview-comment");
+
+    // ⭐ Star Rating Logic
+    stars.forEach(star => {
+        star.addEventListener("click", function () {
+            const val = this.dataset.rating;
+            ratingInput.value = val;
+
+            stars.forEach(s => s.classList.remove("selected"));
+            for (let i = 0; i < val; i++) stars[i].classList.add("selected");
+
+            ratingText.textContent = val + "/5 selected";
+            updatePreview();
+        });
+    });
+
+    // 💬 Comment Counter
+    commentBox.addEventListener("input", () => {
+        charCount.textContent = commentBox.value.length;
+        updatePreview();
+    });
+
+    // 👁 Live Preview
+    function updatePreview() {
+        const rating = ratingInput.value;
+        const comment = commentBox.value;
+
+        if (rating && comment.length >= 3) {
+            preview.style.display = "block";
+            previewRating.textContent = "⭐".repeat(rating);
+            previewComment.textContent = comment.length > 120 ? comment.substring(0, 120) + "..." : comment;
+        } else {
+            preview.style.display = "none";
+        }
+    }
+
+    updatePreview();
+});
+</script>
+
+{% endblock %}

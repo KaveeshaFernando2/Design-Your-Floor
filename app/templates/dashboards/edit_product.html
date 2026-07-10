@@ -1,0 +1,180 @@
+{% extends 'supplier_layout_navbar.html' %}
+
+{% block content %}
+<style>
+    html, body {
+        height: 100%;
+    }
+
+    .side-card {
+        background: #fff;
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        border: 1px solid #e5e7eb;
+        height: 100%;
+    }
+
+    .form-section-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 3px rgba(13,110,253,0.4);
+    }
+
+    .img-preview-box img,
+    .img-thumbnail {
+        max-width: 100%;
+        max-height: 320px;
+        border-radius: 10px;
+    }
+
+    .btn-primary, .btn-secondary {
+        border-radius: 10px;
+        padding: 12px 20px;
+        font-weight: 600;
+    }
+
+    /* Centering container */
+    .center-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        background-image: url("{{ url_for('static', filename='images/texture1.png') }}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .form-wrapper {
+        width: 100%;
+        max-width: 1100px;
+    }
+
+    .page-title-card {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+</style>
+
+<div class="center-container">
+    <div class="form-wrapper">
+
+        <!-- Title Card -->
+        <div class="side-card mb-4 page-title-card">
+            <h2 class="mb-0">Edit Product</h2>
+        </div>
+
+        <form action="" method="POST" enctype="multipart/form-data" class="product-form">
+            <div class="row g-4">
+
+                <!-- LEFT SIDE — FORM CARD -->
+                <div class="col-lg-8">
+                    <div class="side-card">
+
+                        <!-- Basic Information -->
+                        <div class="form-section-title">Basic Information</div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">SKU</label>
+                                <input type="text" name="sku" class="form-control" value="{{ product.sku }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Name</label>
+                                <input type="text" name="name" class="form-control" value="{{ product.name }}" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="3" required>{{ product.description }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="form-section-title mt-4">Product Details</div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Brand</label>
+                                <input type="text" name="brand" class="form-control" value="{{ product.brand }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Price (LKR)</label>
+                                <input type="number" step="0.01" name="price" class="form-control" value="{{ product.price }}" required>
+                            </div>
+                        </div>
+
+                        <!-- Dimensions -->
+                        <div class="form-section-title mt-4">Dimensions (mm)</div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Stock</label>
+                                <input type="number" name="stock" class="form-control" value="{{ product.stock }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Width</label>
+                                <input type="number" name="width_mm" class="form-control" value="{{ product.width_mm }}" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Height</label>
+                                <input type="number" name="height_mm" class="form-control" value="{{ product.height_mm }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mt-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Thickness</label>
+                                <input type="number" name="thickness_mm" class="form-control" value="{{ product.thickness_mm }}" required>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDE — IMAGE CARD -->
+                <div class="col-lg-4">
+                    <div class="side-card">
+                        <div class="form-section-title">Product Image</div>
+                        <label class="form-label">Replace Image (optional)</label>
+                        <input type="file" name="image_file" class="form-control mb-3" accept="image/*" onchange="previewImage(event)">
+                        <div class="img-preview-box">
+                            <img id="preview" 
+                                 src="{% if product.image_path %}{{ url_for('static', filename=product.image_path) }}{% else %}{{ url_for('static', filename='images/no-image.png') }}{% endif %}" 
+                                 alt="Product Image">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="mt-4 text-center">
+                <button type="submit" class="btn btn-primary">Update Product</button>
+                <a href="{{ url_for('supplier.dashboard') }}" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+function previewImage(event) {
+    const preview = document.getElementById('preview');
+    preview.src = URL.createObjectURL(event.target.files[0]);
+}
+</script>
+
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends "delivery_layout_navbar.html" %}
+{% block content %}
+
+<div class="container py-5">
+
+    <!-- Page Title -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+        <h2 class="fw-bold text-primary m-0">🚚 Delivery Dashboard</h2>
+    </div>
+
+
+    <!-- ================= NOT ASSIGNED ORDERS ================= -->
+    <div class="card shadow-lg border-0 rounded-4 mb-5">
+        <div class="card-header bg-light border-0 py-3">
+            <h4 class="fw-bold m-0 text-secondary">📦 Orders Not Assigned</h4>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center mb-0 custom-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Address</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for o in unassigned_orders %}
+                        <tr>
+                            <td class="fw-bold">#{{ o.id }}</td>
+                            <td class="text-muted">{{ o.user_id }}</td>
+                            <td>{{ o.delivery_address }}</td>
+                            <td class="text-success fw-semibold">Rs. {{ o.total }}</td>
+
+                            <td>
+                                <form action="{{ url_for('delivery.assign_order', order_id=o.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-assign btn-sm px-3">
+                                        Accept Delivery
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- ================= MY DELIVERY ORDERS ================= -->
+    <div class="card shadow-lg border-0 rounded-4">
+        <div class="card-header bg-light border-0 py-3">
+            <h4 class="fw-bold m-0 text-secondary">🚚 My Delivery Orders</h4>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle text-center mb-0 custom-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Status</th>
+                            <th>Address</th>
+                            <th>Total</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {% for o in my_orders %}
+                        <tr>
+                            <td class="fw-bold">#{{ o.id }}</td>
+
+                            <!-- Status Badge -->
+                            <td>
+                                <span class="badge 
+                                    {% if o.delivery_status == 'delivered' %} bg-success
+                                    {% elif o.delivery_status == 'out_for_delivery' %} bg-warning text-dark
+                                    {% elif o.delivery_status == 'failed' %} bg-danger
+                                    {% else %} bg-secondary
+                                    {% endif %}
+                                px-3 py-2 rounded-pill">
+                                    {{ o.delivery_status.replace('_',' ').title() }}
+                                </span>
+                            </td>
+
+                            <td class="text-muted">{{ o.delivery_address }}</td>
+                            <td class="text-success fw-semibold">Rs. {{ o.total }}</td>
+
+                            <td class="d-flex justify-content-center gap-2 flex-wrap">
+
+                                {% if o.delivery_status == 'assigned' %}
+                                <form action="{{ url_for('delivery.start_delivery', order_id=o.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-warning btn-sm">
+                                        Start Delivery
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                {% if o.delivery_status == 'out_for_delivery' %}
+                                <form action="{{ url_for('delivery.complete_delivery', order_id=o.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        Mark Delivered
+                                    </button>
+                                </form>
+
+                                <form action="{{ url_for('delivery.failed_delivery', order_id=o.id) }}" method="POST">
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        Mark Failed
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<!-- ✅ Custom Styles -->
+<style>
+/* Table Header */
+.custom-table thead {
+    background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+    color: white;
+}
+
+/* Zebra Rows */
+.custom-table tbody tr:nth-child(odd) { background-color: #f8faff; }
+.custom-table tbody tr:nth-child(even) { background-color: #eef4ff; }
+
+/* Hover */
+.custom-table tbody tr:hover {
+    background-color: #dce9ff !important;
+    transition: 0.2s;
+}
+
+/* Accept Button */
+.btn-assign {
+    background-color: #0d6efd;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+}
+.btn-assign:hover { background-color: #084dbf; }
+</style>
+
+{% endblock %}

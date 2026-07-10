@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Your Floor</title>
+
+    <!-- GOOGLE FONT – POPPINS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- FONT AWESOME ICONS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+        /* GLOBAL FONT */
+        * {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 0.3px;
+        }
+
+        /* NAVIGATION BAR STYLING */
+        .navbar {
+            background: #1f2c3a;
+            padding: 18px 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* LOGO SECTION */
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-logo i {
+            font-size: 2rem;
+            color: #e74c3c;
+        }
+
+        .nav-logo h1 {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: #fff;
+            margin: 0;
+        }
+
+        /* MENU LINKS */
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-menu a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: .3s;
+        }
+
+        .nav-menu a:hover {
+            color: #e74c3c;
+            transform: translateY(-2px);
+        }
+
+        /* CTA BUTTON */
+        .nav-cta {
+            background: #e74c3c;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600 !important;
+        }
+
+        .nav-cta:hover {
+            background: #c0392b;
+            color: #fff !important;
+        }
+
+        /* MOBILE STYLE */
+        #menu-toggle {
+            display: none;
+        }
+
+        .hamburger {
+            display: none;
+            font-size: 1.7rem;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: block;
+            }
+
+            .nav-menu {
+                position: absolute;
+                top: 75px;
+                right: 0;
+                background: #1f2c3a;
+                width: 100%;
+                flex-direction: column;
+                padding: 25px 0;
+                gap: 18px;
+                display: none;
+            }
+
+            #menu-toggle:checked ~ .nav-menu {
+                display: flex;
+            }
+
+            .nav-menu a {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVIGATION BAR -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-th-large"></i>
+                <h1>Design Your Floor</h1>
+            </div>
+
+            <input type="checkbox" id="menu-toggle">
+            <label for="menu-toggle" class="hamburger">
+                <i class="fas fa-bars"></i>
+            </label>
+
+            <nav class="nav-menu">
+                <a href="{{ url_for('main.home') }}">Home</a>
+                <a href="{{ url_for('main.about') }}">About</a>
+                <a href="{{ url_for('customer.view_cart') }}">Cart</a>
+                <a href="{{ url_for('main.gallery') }}">Gallery</a>
+                <a href="{{ url_for('main.services') }}">Services</a>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+
+            </nav>
+        </div>
+    </header>
+
+    {% block content %}
+    {% endblock %}
+
+</body>
+</html>

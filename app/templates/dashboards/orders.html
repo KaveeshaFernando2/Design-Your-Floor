@@ -1,0 +1,214 @@
+{% extends 'customer_layout_navbar.html' %}
+{% block content %}
+
+<style>
+/* ===== Dashboard Container ===== */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 15px;
+}
+
+/* ===== Dashboard Header ===== */
+.dashboard-container h2 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: #2c3e50;
+}
+
+/* ===== Summary Cards ===== */
+.summary-cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 40px;
+}
+
+.summary-card {
+    flex: 1 1 200px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border-radius: 15px;
+    padding: 25px 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.summary-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+.summary-card h3 {
+    margin: 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.summary-card p {
+    margin: 5px 0 0;
+    font-weight: 500;
+}
+
+/* ===== Orders Grid ===== */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+/* ===== Order Card ===== */
+.order-card {
+    background: #ffffff;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: transform 0.3s, box-shadow 0.3s;
+    border-left: 5px solid transparent;
+    display: flex;
+    flex-direction: column;
+}
+
+.order-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+}
+
+/* Order Header */
+.order-header {
+    padding: 20px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-header h5 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #34495e;
+}
+
+.order-status {
+    padding: 6px 15px;
+    border-radius: 25px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+.order-status.pending { background: #f39c12; }
+.order-status.processing { background: #3498db; }
+.order-status.paid { background: #28a745; }  /* UPDATED */
+.order-status.cancelled { background: #e74c3c; }
+
+/* Order Details */
+.order-details {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.order-details p {
+    margin: 0;
+    color: #7f8c8d;
+    font-size: 0.95rem;
+}
+
+.order-total {
+    font-weight: 700;
+    color: #2c3e50;
+    font-size: 1.1rem;
+}
+
+.order-btn {
+    margin-top: 15px;
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #ff512f, #dd2476);
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.order-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 8px 25px rgba(221, 36, 118, 0.4);
+}
+
+/* No Orders */
+.no-orders {
+    text-align: center;
+    padding: 50px 0;
+    font-size: 1.2rem;
+    color: #95a5a6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .summary-cards {
+        flex-direction: column;
+    }
+    .orders-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<div class="dashboard-container">
+    <h2>My Orders Dashboard</h2>
+
+    <!-- ===== Summary Cards ===== -->
+    <div class="summary-cards">
+        <div class="summary-card">
+            <h3>{{ orders|length }}</h3>
+            <p>Total Orders</p>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #f39c12, #f1c40f);">
+            <h3>{{ orders|selectattr('status', 'equalto', 'pending')|list|length }}</h3>
+            <p>Pending</p>
+        </div>
+        <div class="summary-card" style="background: linear-gradient(135deg, #28a745, #20c997);">
+            <h3>{{ orders|selectattr('status', 'equalto', 'paid')|list|length }}</h3>
+            <p>Paid</p>  <!-- UPDATED -->
+        </div>
+        <!--<div class="summary-card" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+            <h3>{{ orders|selectattr('status', 'equalto', 'cancelled')|list|length }}</h3>
+            <p>Cancelled</p>
+        </div>-->
+    </div>
+
+    <!-- ===== Orders Grid ===== -->
+    {% if orders %}
+    <div class="orders-grid">
+        {% for order in orders %}
+        <div class="order-card" 
+             style="border-left-color: {% if order.status == 'pending' %}#f39c12{% elif order.status == 'processing' %}#3498db{% elif order.status == 'paid' %}#28a745{% else %}#e74c3c{% endif %}">
+            <div class="order-header">
+                <h5>Order #{{ order.id }}</h5>
+                <span class="order-status {{ order.status }}">{{ order.status | capitalize }}</span>
+            </div>
+            <div class="order-details">
+                <p><strong>Total:</strong> Rs. {{ order.total }}</p>
+                <p><strong>Placed On:</strong> {{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                <a href="{{ url_for('customer.order_details', order_id=order.id) }}" class="order-btn">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-orders">
+        <p>No orders found.</p>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

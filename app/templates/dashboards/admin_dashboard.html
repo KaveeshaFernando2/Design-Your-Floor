@@ -1,0 +1,482 @@
+{% extends "admin_layout_navbar.html" %}
+{% block content %}
+
+<!-- =========================
+     Industrial Admin Dashboard
+     File: templates/dashboards/admin_dashboard.html
+     Drops into your project; uses Chart.js (CDN) and Bootstrap classes.
+========================= -->
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+/* ---------- Theme Vars (light by default) ---------- */
+:root{
+  --bg:#f4f6fb;
+  --card:#ffffff;
+  --muted:#6c757d;
+  --text:#111827;
+  --accent:#6a11cb;
+  --success:#1dbf41;
+  --danger:#e74c3c;
+  --glass: rgba(255,255,255,0.6);
+  --shadow: 0 10px 30px rgba(2,6,23,0.06);
+  --radius:12px;
+}
+
+/* ---------- dark mode override ---------- */
+body.dark-mode {
+  --bg:#0b0d11;
+  --card:#111318;
+  --muted:#9aa3ad;
+  --text:#e6eef6;
+  --glass: rgba(255,255,255,0.03);
+  --shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+/* ---------- layout ---------- */
+.admin-wrap {
+  display:flex;
+  min-height:100vh;
+  gap:28px;
+  background: var(--bg);
+  padding:28px;
+  box-sizing:border-box;
+}
+
+.sidebar {
+  width:260px;
+  background: linear-gradient(180deg,var(--card), rgba(0,0,0,0.01));
+  border-radius: var(--radius);
+  padding:20px;
+  box-shadow: var(--shadow);
+  position:sticky;
+  top:28px;
+  height:calc(100vh - 56px);
+  overflow:auto;
+}
+
+.brand {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-bottom:18px;
+}
+.brand .logo {
+  background:linear-gradient(135deg,#ff6b6b,#6a11cb);
+  color:white;
+  width:44px;
+  height:44px;
+  display:grid;
+  place-items:center;
+  border-radius:10px;
+  font-weight:700;
+}
+.brand h3 { margin:0; font-size:1.05rem; color:var(--text); }
+
+/* nav items */
+.nav-link {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 12px;
+  border-radius:10px;
+  color:var(--muted);
+  text-decoration:none;
+  margin-bottom:8px;
+  font-weight:600;
+}
+.nav-link:hover, .nav-link.active {
+  color:white;
+  background:linear-gradient(90deg,var(--accent), #3b82f6);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+/* main panel */
+.content {
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+/* topbar */
+.topbar {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:16px;
+}
+.search {
+  background:var(--card);
+  padding:10px;
+  border-radius:999px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  box-shadow: var(--shadow);
+}
+.search input {
+  border:0;
+  outline:none;
+  background:transparent;
+  width:340px;
+  color:var(--text);
+}
+
+/* KPI grid */
+.kpi-grid {
+  display:grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap:16px;
+}
+.kpi {
+  background:var(--card);
+  padding:18px;
+  border-radius:12px;
+  box-shadow: var(--shadow);
+}
+.kpi .title { color:var(--muted); font-size:0.9rem; margin-bottom:8px; }
+.kpi .value { font-size:1.6rem; font-weight:800; color:var(--text); }
+
+/* cards/tables */
+.panel {
+  background:var(--card);
+  padding:16px;
+  border-radius:12px;
+  box-shadow: var(--shadow);
+}
+
+/* orders table */
+.table .badge { font-weight:700; padding:6px 10px; border-radius:999px; font-size:0.8rem; }
+.badge-pending { background:#f59e0b; color:#1a1a1a; }
+.badge-assigned { background:#06b6d4; color:white; }
+.badge-transit { background:#0ea5e9; color:white; }
+.badge-delivered { background:var(--success); color:white; }
+.badge-failed { background:var(--danger); color:white; }
+
+/* small controls */
+.btn-sm { padding:6px 10px; border-radius:8px; font-weight:700; border:0; cursor:pointer; }
+.btn-export { background:linear-gradient(90deg,#06b6d4,#0ea5e9); color:white; }
+.btn-assign { background:#0d6efd; color:white; }
+.btn-mark { background:var(--success); color:white; }
+
+/* responsive */
+@media (max-width:1100px){
+  .kpi-grid { grid-template-columns: repeat(2,1fr); }
+  .search input { width:180px; }
+}
+@media (max-width:780px){
+  .admin-wrap{ padding:12px; flex-direction:column; }
+  .sidebar{ width:100%; height:auto; position:relative; }
+}
+</style>
+
+<div class="admin-wrap">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo"><i class="fas fa-th"></i></div>
+      <div>
+        <h3>Design Your Floor</h3>
+        <div style="font-size:.8rem; color:var(--muted)">Admin Console</div>
+      </div>
+    </div>
+
+    <nav>
+      <a class="nav-link active" href="{{ url_for('admin.dashboard') }}"><i class="fas fa-chart-pie"></i> Dashboard</a>
+      <a class="nav-link" href="{{ url_for('admin.dashboard') }}#suppliers"><i class="fas fa-store"></i> Suppliers</a>
+      <a class="nav-link" href="{{ url_for('admin.dashboard') }}#products"><i class="fas fa-boxes"></i> Products</a>
+      <a class="nav-link" href="{{ url_for('admin.dashboard') }}#orders"><i class="fas fa-receipt"></i> Orders</a>
+      <a class="nav-link" href="{{ url_for('admin.dashboard') }}#installers"><i class="fas fa-hard-hat"></i> Installers</a>
+      <a class="nav-link" href="{{ url_for('admin.dashboard') }}#delivery"><i class="fas fa-truck"></i> Delivery</a>
+
+      <hr style="margin:14px 0; border-color: rgba(0,0,0,0.05)">
+
+      <a class="nav-link" href="{{ url_for('admin.dashboard_excel') }}"><i class="fas fa-file-excel"></i> Export Excel</a>
+      <a class="nav-link" href="{{ url_for('admin.dashboard_pdf') }}"><i class="fas fa-file-pdf"></i> Export PDF</a>
+
+      <div style="height:18px"></div>
+
+      <div style="font-size:.85rem; color:var(--muted);">Quick actions</div>
+      <a class="nav-link" href="/products/create"><i class="fas fa-plus"></i> Add Product</a>
+      <a class="nav-link" href="/suppliers/create"><i class="fas fa-plus-circle"></i> Add Supplier</a>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div class="search panel">
+          <i class="fas fa-search" style="color:var(--muted)"></i>
+          <input id="globalSearch" placeholder="Search orders, products, suppliers..." />
+        </div>
+
+        <div style="display:flex; gap:8px;">
+          <button class="btn-sm btn-export" id="exportCSV"><i class="fas fa-file-csv"></i> Export CSV</button>
+          <button class="btn-sm" id="toggleThemeBtn"><i class="fas fa-moon"></i> Theme</button>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px; align-items:center;">
+        <div style="text-align:right">
+          <div style="font-size:.85rem; color:var(--muted)">Hello, <strong>{{ current_user.full_name }}</strong></div>
+          <small style="color:var(--muted)">Admin</small>
+        </div>
+        <img src="{{ url_for('static', filename='images/admin-avatar.png') }}" alt="admin" style="width:48px; height:48px; border-radius:10px; object-fit:cover;">
+      </div>
+    </div>
+
+    <!-- KPI GRID -->
+    <section class="kpi-grid">
+      <div class="kpi">
+        <div class="title">Total Users</div>
+        <div class="value">{{ total_users }}</div>
+        <div style="color:var(--muted); font-size:.85rem">All registered accounts</div>
+      </div>
+      <div class="kpi">
+        <div class="title">Total Orders</div>
+        <div class="value">{{ total_orders }}</div>
+        <div style="color:var(--muted); font-size:.85rem">Orders placed</div>
+      </div>
+      <div class="kpi">
+        <div class="title">Total Revenue</div>
+        <div class="value">Rs. {{ "{:,.2f}".format(total_revenue) }}</div>
+        <div style="color:var(--muted); font-size:.85rem">Gross revenue</div>
+      </div>
+      <div class="kpi">
+        <div class="title">New Users (7d)</div>
+        <div class="value">{{ new_users }}</div>
+        <div style="color:var(--muted); font-size:.85rem">Registrations this week</div>
+      </div>
+    </section>
+
+    <!-- CHARTS -->
+    <section style="display:grid; grid-template-columns: 1fr 420px; gap:18px;">
+
+      <!-- Left: Order status chart + Orders table -->
+      <div class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+          <h5 style="margin:0">Order Status</h5>
+          <small style="color:var(--muted)">Live breakdown</small>
+        </div>
+        <canvas id="orderStatusChart" style="height:220px;"></canvas>
+
+        <hr style="margin:16px 0">
+
+        <h6 id="orders">Recent Orders</h6>
+        <div style="overflow:auto; max-height:300px; margin-top:8px;">
+          <table class="table" style="width:100%; border-collapse:collapse;">
+            <thead style="color:var(--muted); font-size:.85rem;">
+              <tr>
+                <th>#</th><th>Customer</th><th>Total</th><th>Status</th><th>Delivery</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for o in orders %}
+              <tr style="border-bottom:1px solid rgba(0,0,0,0.04);">
+                <td>#{{ o.id }}</td>
+                <td>{{ o.user.full_name if o.user else '—' }}</td>
+                <td>Rs. {{ "{:,.2f}".format(o.total) }}</td>
+                <td>
+                  <span class="badge
+                    {% if o.status == 'pending' %}badge-pending
+                    {% elif o.status == 'paid' %}badge-assigned
+                    {% elif o.status == 'processing' %}badge-transit
+                    {% elif o.status == 'delivered' %}badge-delivered
+                    {% else %}badge-pending{% endif %}">
+                    {{ o.status.replace('_',' ').title() }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge
+                    {% if o.delivery_status == 'pending' %}badge-pending
+                    {% elif o.delivery_status == 'assigned' %}badge-assigned
+                    {% elif o.delivery_status == 'out_for_delivery' %}badge-transit
+                    {% elif o.delivery_status == 'delivered' %}badge-delivered
+                    {% elif o.delivery_status == 'failed' %}badge-failed
+                    {% else %}badge-pending{% endif %}">
+                    {{ o.delivery_status.replace('_',' ').title() }}
+                  </span>
+                </td>
+                <td>
+                  <form method="POST" action="{{ url_for('supplier.assign_delivery', order_id=o.id) }}" style="display:inline;">
+                    <select name="delivery_person" class="form-select form-select-sm" style="display:inline-block; width:140px;">
+                      <option value="">Assign</option>
+                      {% for user in users %}
+                        <option value="{{ user.id }}">{{ user.full_name }}</option>
+                      {% endfor %}
+                    </select>
+                    <button class="btn-sm btn-assign" style="margin-left:6px;">Assign</button>
+                  </form>
+                </td>
+              </tr>
+            {% else %}
+              <tr><td colspan="6" style="color:var(--muted)">No recent orders</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: Top products + low stock -->
+      <div class="panel">
+        <h5 style="margin-top:0">Top Selling Products</h5>
+        <canvas id="topProductsChart" style="height:220px;"></canvas>
+
+        <hr style="margin:14px 0">
+        <h6 id="products">Low Stock Alerts</h6>
+        <ul style="list-style:none; padding-left:0; margin:10px 0;">
+          {% for p in low_stock %}
+            <li style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid rgba(0,0,0,0.04);">
+              <div>
+                <div style="font-weight:700; color:var(--text)">{{ p.name }}</div>
+                <small style="color:var(--muted)">{{ p.brand or '' }}</small>
+              </div>
+              <div>
+                <span style="background:rgba(231,76,60,0.12); color:var(--danger); padding:6px 10px; border-radius:999px; font-weight:700;">
+                  {{ p.stock }}
+                </span>
+              </div>
+            </li>
+          {% else %}
+            <li style="color:var(--muted)">All good — no low stock items</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- MANAGEMENT PANELS: Suppliers / Installers -->
+    <section style="display:grid; grid-template-columns:1fr 1fr; gap:18px;">
+
+      <div class="panel" id="suppliers">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h5 style="margin:0">Suppliers</h5>
+          <a href="/suppliers" class="nav-link" style="padding:6px 10px; border-radius:8px; display:inline-block;">Manage</a>
+        </div>
+
+        <div style="margin-top:12px; overflow:auto; max-height:240px;">
+          <table style="width:100%;">
+            <thead style="color:var(--muted); font-size:.85rem;">
+              <tr><th>Name</th><th>Company</th><th>Address</th></tr>
+            </thead>
+            <tbody>
+            {% for s in suppliers %}
+              <tr>
+                <td>{{ s.user.full_name }}</td>
+                <td>{{ s.company_name }}</td>
+                <td style="color:var(--muted)">
+  {{ s.address[:60] if s.address else '' }}{% if s.address and s.address|length > 60 %}...{% endif %}
+</td>
+              </tr>
+            {% else %}
+              <tr><td colspan="3" style="color:var(--muted)">No suppliers</td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" id="installers">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h5 style="margin:0">Installers</h5>
+          <a href="/installers" class="nav-link" style="padding:6px 10px; border-radius:8px; display:inline-block;">Manage</a>
+        </div>
+
+        <ul style="list-style:none; padding-left:0; margin-top:12px;">
+        {% for inst in installers %}
+          <li style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(0,0,0,0.04);">
+            <div>
+              <strong>{{ inst.user.full_name }}</strong><br>
+              <small style="color:var(--muted)">{{ inst.bio[:60] }}{% if inst.bio|length>60 %}...{% endif %}</small>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-weight:800; color:var(--muted)">{{ inst.completed_jobs }} jobs</div>
+              <div style="margin-top:6px;"><span style="background:rgba(37,99,235,0.08); color:#2563eb; padding:6px 10px; border-radius:999px;">{{ inst.rating or 0 }}/5</span></div>
+            </div>
+          </li>
+        {% else %}
+          <li style="color:var(--muted)">No installers registered</li>
+        {% endfor %}
+        </ul>
+      </div>
+
+    </section>
+
+    <!-- FOOTER ACTIONS -->
+    <div style="display:flex; justify-content:space-between; gap:12px; align-items:center;">
+      <div style="color:var(--muted)">Last updated: 2025 {{ now() if now is defined else '' }}</div>
+      <div style="display:flex; gap:8px">
+        <a href="/admin/dashboard/download/excel" class="btn-sm btn-export">Download Excel</a>
+        <a href="/admin/dashboard/download/pdf" class="btn-sm" style="background:#dc2626; color:white;">Download PDF</a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============ SCRIPTS ============ -->
+<script>
+// Theme toggle
+const themeBtn = document.getElementById('toggleThemeBtn');
+themeBtn?.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+});
+
+// Global search (client-side simple filter)
+document.getElementById('globalSearch').addEventListener('input', e => {
+  const q = e.target.value.toLowerCase();
+  // search in simple lists: orders table rows
+  document.querySelectorAll('table tbody tr').forEach(row => {
+    const text = row.innerText.toLowerCase();
+    row.style.display = text.includes(q) ? '' : 'none';
+  });
+});
+
+// CSV export (simple client-side from visible orders table)
+document.getElementById('exportCSV').addEventListener('click', () => {
+  const rows = Array.from(document.querySelectorAll('table tbody tr'))
+    .filter(r => r.style.display !== 'none')
+    .map(r => Array.from(r.querySelectorAll('td')).map(td => '"'+ td.innerText.replace(/"/g,'""') +'"').join(','));
+  if(!rows.length){ alert('Nothing to export'); return; }
+  const csv = ['"OrderID","Customer","Total","Status","Delivery"', ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'orders_export.csv'; a.click(); URL.revokeObjectURL(url);
+});
+
+// Charts
+const orderStatusCtx = document.getElementById('orderStatusChart').getContext('2d');
+new Chart(orderStatusCtx, {
+  type: 'doughnut',
+  data: {
+    labels: {{ order_status_labels|tojson }},
+    datasets: [{ data: {{ order_status_values|tojson }},
+      backgroundColor: ['#f59e0b','#06b6d4','#0ea5e9','#1dbf41','#ef4444'] }]
+  },
+  options: { plugins:{ legend:{ position:'bottom' } } }
+});
+
+const topProductsCtx = document.getElementById('topProductsChart').getContext('2d');
+new Chart(topProductsCtx, {
+  type: 'bar',
+  data: {
+    labels: {{ top_products_labels|tojson }},
+    datasets: [{
+      label: 'Qty sold',
+      data: {{ top_products_values|tojson }},
+      backgroundColor: 'rgba(106,17,203,0.85)',
+      borderRadius: 6
+    }]
+  },
+  options: { plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }
+});
+</script>
+
+{% endblock %}

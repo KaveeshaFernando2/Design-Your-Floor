@@ -1,0 +1,186 @@
+/* === GLOBAL RESETS === */
+body {
+    background: #f7f9fc;
+    font-family: "Segoe UI", sans-serif;
+}
+
+/* === DASHBOARD HEADER === */
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+
+.dashboard-header h2 {
+    font-weight: 600;
+}
+
+
+/* === FILTER FORM === */
+.filters-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 20px;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background: rgba(0,0,0,0.5);
+    margin-bottom: 2rem;
+}
+
+.filters-form label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.filters-form .flex-fill {
+    flex: 1;
+    min-width: 220px;
+}
+
+.filters-form button.filter-btn {
+    min-width: 150px;
+    width: 100%;
+    background: linear-gradient(135deg, #3e8ef7, #1c6ed5);
+    border-radius: 50px;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    transition: 0.3s;
+}
+
+.filters-form button.filter-btn:hover {
+    transform: translateY(-2px);
+}
+
+/* Inputs & Select Dark Theme */
+.filters-form .dark-input {
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: 1px solid #555;
+    border-radius: 10px;
+    padding: 0.5rem;
+}
+
+.filters-form .dark-input::placeholder {
+    color: #ccc;
+}
+
+/* === PRODUCT CARD GRID === */
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+}
+
+/* Medium screens: 3 cards */
+@media (max-width: 1200px) {
+    .product-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Tablet: 2 cards */
+@media (max-width: 768px) {
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile: 1 card */
+@media (max-width: 576px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === PRODUCT CARDS === */
+.card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}
+
+.card-img-top {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.card-footer {
+    background: #fff;
+    border-top: none;
+}
+
+.btn-outline-danger,
+.btn-outline-primary {
+    border-radius: 6px;
+}
+
+/* SweetAlert custom styling (optional) */
+.swal2-popup {
+    border-radius: 12px !important;
+}
+
+/* === PAGINATION STYLING === */
+.pagination {
+    list-style: none;   /* Remove default bullets */
+    padding-left: 0;    /* Remove default padding */
+    margin: 0;          /* Remove default margin if needed */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+
+.page-link.dark-page-link {
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 6px 12px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.page-link.dark-page-link:hover {
+    background: #3e8ef7;
+    color: white;
+}
+
+.page-item.active .page-link.dark-page-link {
+    background: #3e8ef7;
+    color: white;
+    border-color: #3e8ef7;
+}
+
+/* Tile calculator / simulator tweaks */
+.detail-item h5 { margin-bottom: 10px; font-weight:700; }
+#tile-canvas { background: #fff; display:block; width:100%; height:auto; }
+.filters-form .form-label, .details-section .form-label { color: #444; font-weight:600; }
+
+
+
+#room3d-container canvas {
+    background: #ffffff !important;
+}
+
+#room3d-container {
+    background: #ffffff !important;
+}
+
