@@ -101,19 +101,121 @@ Unlike the traditional manual workflow that requires visiting multiple physical 
 
 # 🖼 Screenshots
 
-> Replace these images with your own screenshots.
+# 🖼 Screenshots
 
-| Home Page | Product Page |
-|------------|--------------|
-| ![](screenshots/home.png) | ![](screenshots/products.png) |
+The following screenshots demonstrate the main functionalities and user interfaces of the **Design Your Floor** web application.
 
-| Customer Dashboard | Admin Dashboard |
-|--------------------|-----------------|
-| ![](screenshots/customer_dashboard.png) | ![](screenshots/admin_dashboard.png) |
+---
 
-| Tile Calculator | Installer Booking |
-|-----------------|-------------------|
-| ![](screenshots/calculator.png) | ![](screenshots/installer.png) |
+## 🏠 Home Page
+
+Landing page with an overview of tile and hardware products, services, and system features.
+
+![Home Page](screenshots/home.png)
+
+---
+
+## 🔐 User Authentication
+
+Customer registration and secure login functionality.
+
+![Login Page](screenshots/login.png)
+
+---
+
+## 🏪 Tile & Hardware Product Catalogue
+
+Users can browse available tiles and hardware products with product details.
+
+![Product Catalogue](screenshots/products.png)
+
+---
+
+## 🔍 Product Search & Filtering
+
+Search and filter products based on categories and requirements.
+
+![Product Search](screenshots/search.png)
+
+---
+
+## 📐 Tile Quantity Calculator
+
+Calculates the required number of tiles based on room dimensions.
+
+![Tile Calculator](screenshots/calculator.png)
+
+---
+
+## 🛒 Shopping Cart & Checkout
+
+Customers can add products, review orders, and proceed with purchases.
+
+![Shopping Cart](screenshots/cart.png)
+
+---
+
+## 📦 Order & Delivery Management
+
+Customers can track orders and delivery status.
+
+![Order Tracking](screenshots/order_tracking.png)
+
+---
+
+## 👷 Installer Booking System
+
+Customers can view verified installers and request installation services.
+
+![Installer Booking](screenshots/installer_booking.png)
+
+---
+
+## 👤 Customer Dashboard
+
+Customer dashboard for managing orders, bookings, and reviews.
+
+![Customer Dashboard](screenshots/customer_dashboard.png)
+
+---
+
+## 🏢 Supplier Dashboard
+
+Supplier interface for managing products, inventory, and orders.
+
+![Supplier Dashboard](screenshots/supplier_dashboard.png)
+
+---
+
+## 🚚 Delivery Partner Dashboard
+
+Delivery management interface for assigned deliveries and status updates.
+
+![Delivery Dashboard](screenshots/delivery_dashboard.png)
+
+---
+
+## 🔐 Administrator Dashboard
+
+Admin panel for managing users, products, suppliers, installers, and reports.
+
+![Admin Dashboard](screenshots/admin_dashboard.png)
+
+---
+
+## 🏠 3D Room Preview
+
+Interactive room visualization feature for previewing floor designs.
+
+![3D Room Preview](screenshots/3d_room_preview.png)
+
+---
+
+## 🤖 AI Features
+
+AI-based features integrated into the platform for improving customer experience.
+
+![AI Feature](screenshots/ai_feature.png)
 
 ---
 
